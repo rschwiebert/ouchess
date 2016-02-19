@@ -12,4 +12,5 @@ import club.views
 urlpatterns = [
     url(r'^$', club.views.index, name='index'),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^player/(?P<pk>[0-9]+)$', club.views.PlayerDetailView.as_view(), name='player-detail'),
 ]

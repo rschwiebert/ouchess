@@ -1,0 +1,6 @@
+<h1>{{ object.user.username}}</h1>
+<h2>Ratings</h2>
+
+{% for rating in rating_list %}
+    ({{ rating.rating }}) {{ rating.event.name }}
+{% endfor %}
