@@ -1,5 +1,5 @@
 from django.contrib import admin
-from club.models import Player, Game, Algorithm, Event, Rating
+from club.models import Player, Game, Algorithm, Ladder, Rating
 
 class PlayerAdmin(admin.ModelAdmin):
     pass
@@ -13,7 +13,7 @@ class AlgorithmAdmin(admin.ModelAdmin):
     pass
 
 
-class EventAdmin(admin.ModelAdmin):
+class LadderAdmin(admin.ModelAdmin):
     pass
 
 
@@ -24,5 +24,5 @@ class RatingAdmin(admin.ModelAdmin):
 admin.site.register(Player, PlayerAdmin)
 admin.site.register(Game, GameAdmin)
 admin.site.register(Algorithm, AlgorithmAdmin)
-admin.site.register(Event, EventAdmin)
+admin.site.register(Ladder, LadderAdmin)
 admin.site.register(Rating, RatingAdmin)

@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.generic import DetailView, ListView
 import requests
-from club.models import Player, Rating, Event
+from club.models import Player, Rating, Ladder
 
 # Create your views here.
 def index(request):
@@ -22,32 +22,32 @@ class PlayerDetailView(DetailView):
         return context
 
 
-class EventDetailView(DetailView):
-    model = Event
+class LadderDetailView(DetailView):
+    model = Ladder
 
 
 class PlayerListView(ListView):
     model = Player
 
 
-class EventListView(ListView):
-    model = Event
+class LadderListView(ListView):
+    model = Ladder
 
-class EventRatingListView(ListView):
+class LadderRatingListView(ListView):
     model = Rating
 
     @property
-    def event(self):
-        return Event.objects.get(id=self.kwargs['pk']) or None
+    def ladder(self):
+        return Ladder.objects.get(id=self.kwargs['pk']) or None
 
     def get_context_data(self):
         context = super(ListView, self).get_context_data()
-        context['event'] = self.event
+        context['ladder'] = self.ladder
         return context
 
     def get_queryset(self, **kwargs):
-        current_event = Event.objects.get(id=self.kwargs['pk'])
+        current_ladder = Ladder.objects.get(id=self.kwargs['pk'])
         queryset = super(ListView, self).get_queryset(**kwargs)
-        queryset = queryset.filter(event=current_event).order_by('-rating')
+        queryset = queryset.filter(ladder=current_ladder).order_by('-rating')
         return queryset
     
