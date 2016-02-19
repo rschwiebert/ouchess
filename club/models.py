@@ -29,6 +29,14 @@ class Event(models.Model):
     location = models.CharField(max_length=30, null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
+    inactivity_period = models.IntegerField(
+        null=True, blank=True, 
+        help_text="After this many days without a game, the player's ranking "
+                  "will drop by demotion_inc places.")
+    demotion_inc = models.IntegerField(
+        null=True, blank=True,
+        help_text="When the inactivity penalty is enforced, the player's ranking "
+                  "falls this many places")
 
     def __unicode__(self):
         return self.name + ' (%s) %s-%s' % (self.get_event_type_display(), self.start_date, self.end_date)
@@ -58,14 +66,14 @@ class Rating(models.Model):
     player = models.ForeignKey(Player)
     event = models.ForeignKey(Event)
     rating = models.IntegerField(default=1200)
+    ranking = models.IntegerField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __unicode__(self):
         return '%s (%d) [%s]' % (self.player.user.username, self.rating, self.event.name)
 
     class Meta:
         unique_together = ('player', 'event')
-
-    
 
 
 # Signal to associate a Player profile to each Django's User instance.
@@ -74,9 +82,18 @@ def add_player(sender, instance, created, **kwargs):
     if created:
         Player.objects.create(user=instance)
 
+# Hook ratings from players at the time the game record is created
 @receiver(post_save, sender=Game)
 def set_ratings(sender, instance, created, **kwargs):
     if created:
         instance.white_rating = instance.event.rating_set.get(player=instance.white).rating
         instance.black_rating = instance.event.rating_set.get(player=instance.black).rating
+        instance.save()
+
+# People join ladders at the bottom
+@receiver(post_save, sender=Rating)
+def set_rank(sender, instance, created, **kwargs):
+    if created:
+        max_rank = Event.objects.filter(event=instance.event).aggregate(models.Max('ranking'))
+        instance.ranking = max_rank + 1
         instance.save()
