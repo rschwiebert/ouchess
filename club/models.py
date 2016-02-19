@@ -94,6 +94,7 @@ def set_ratings(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Rating)
 def set_rank(sender, instance, created, **kwargs):
     if created:
-        max_rank = Event.objects.filter(event=instance.event).aggregate(models.Max('ranking'))
+        max_rank = instance.event.rating_set.aggregate(models.Max('ranking'))
+        max_rank = max_rank['ranking__max']
         instance.ranking = max_rank + 1
         instance.save()
