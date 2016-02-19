@@ -38,7 +38,7 @@ class Ladder(models.Model):
                   "falls this many places")
 
     def __unicode__(self):
-        return self.name + ' (%s) %s-%s' % (self.get_event_type_display(), self.start_date, self.end_date)
+        return '%s: %s-%s' % (self.name, self.start_date, self.end_date)
 
 
 class Game(models.Model):
