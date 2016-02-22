@@ -6,6 +6,11 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+#####
+# Models
+#####
+
+
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_student_member = models.NullBooleanField(blank=True, null=True)
@@ -74,6 +79,61 @@ class Rating(models.Model):
     class Meta:
         unique_together = ('player', 'ladder')
 
+#####
+# Rank manipulation helper methods
+#####
+def insert(player1, player2, ladder, above=False):
+    """If above is True, insert player1 immediately above player2 in the ranking and 
+    adjust all other ranks. If above is False, insert player1 immediately below player2."""
+    p1_rating = Rating.objects.get(player=player1, ladder=ladder)
+    p2_rating = Rating.objects.get(player=player2, ladder=ladder)
+    if above:
+        new_rank = p1_rating.rank
+    else:
+        new_rank = p1_rating.rank + 1
+    move = Rating.objects.filter(ladder=ladder, rank__lte=new_rank)
+    for rating in move:
+        rating.rank += 1
+        rating.save()
+    p2_rating.rank = new_rank
+    p2_rating.save()
+
+def demote(target, ladder):
+    """Penalize player by dropping 1 rank on given ladder"""
+    target_rating = Rating.objects.get(player=target, ladder=ladder)
+    other = ladder.rating_set.filter(rank=target_rating.rank + 1)
+    if other.exists():
+        other = other[0]
+        target.rank, other.rank = (other.rank, target.rank )
+        target.save()
+        other.save()
+
+def remove(target, ladder):
+    """Strip player of rank, mark as inactive, adjust all other ranks accordingly."""
+    target_rating = Rating.objects.get(player=target, ladder=ladder)
+    lower = ladder.rating_set.filter(rank__lt=target_rating.rank)
+    for rating in lower:
+        rating.rank += 1
+        rating.save()
+    target_rating.rank = None
+    target_rating.is_active = False
+    target_rating.save()
+
+def rejoin(target, ladder):
+    """Mark the player as active again and put them at the bottom of the ladder."""
+    target_rating = Rating.objects.get(player=target, ladder=ladder)
+    target_rating.is_active = True
+    max_rank = ladder.rating_set.aggregate(models.Max('ranking'))
+    max_rank = max_rank['ranking__max']
+    target_rating.rank = max_rank + 1
+    target_rating.save()
+        
+
+
+
+#####
+# Signals
+#####
 
 # Signal to associate a Player profile to each Django's User instance.
 @receiver(post_save, sender=User)
@@ -87,7 +147,9 @@ def set_ratings(sender, instance, created, **kwargs):
     if created:
         instance.white_rating = instance.ladder.rating_set.get(player=instance.white).rating
         instance.black_rating = instance.ladder.rating_set.get(player=instance.black).rating
+        # now use helper methods above to adjust ranks and set ratings.
         instance.save()
+        
 
 # People join ladders at the bottom
 @receiver(post_save, sender=Rating)
