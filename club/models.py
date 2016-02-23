@@ -80,6 +80,14 @@ class Rating(models.Model):
         unique_together = ('player', 'ladder')
 
 #####
+# Rating computation methods
+#####
+def calculate_rating(target, ladder):
+    # Successful execution of the following line depends on validity of 
+    # the formula with 'target' plugged in
+    return eval(ladder.algorithm.formula)
+    
+#####
 # Rank manipulation helper methods
 #####
 def insert(player1, player2, ladder, above=False):
@@ -128,9 +136,6 @@ def rejoin(target, ladder):
     target_rating.rank = max_rank + 1
     target_rating.save()
         
-
-
-
 #####
 # Signals
 #####
@@ -145,10 +150,38 @@ def add_player(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Game)
 def set_ratings(sender, instance, created, **kwargs):
     if created:
-        instance.white_rating = instance.ladder.rating_set.get(player=instance.white).rating
-        instance.black_rating = instance.ladder.rating_set.get(player=instance.black).rating
-        # now use helper methods above to adjust ranks and set ratings.
+        white = instance.white
+        black = instance.black
+        ladder = instance.ladder
+        white_rating = instance.ladder.rating_set.get(player=white)
+        black_rating = instance.ladder.rating_set.get(player=black)
+        instance.white_rating = white_rating.rating
+        instance.black_rating = black_rating.rating
         instance.save()
+        
+        # compute new ratings
+        calculate_rating(white, ladder)
+        calculate_rating(black, ladder)
+           
+        # compute new ranks      
+        if instance.result == 0:
+            if white_rating.rank > black_rating.rank:
+                pass
+            else:
+                insert(black, white, ladder, above=True)
+        elif instance.result == 1:
+            if white_rating.rank > black_rating.rank:
+                insert(black, white, ladder, above=True)
+            else:
+                pass
+        elif instance.result == 2:
+            if white_rating.rank > black_rating.rank:
+                pass
+            else:
+                insert(black, white, ladder, above=False)
+        else:
+            raise Exception('What game result code is this? %d' % instance.result)
+            
         
 
 # People join ladders at the bottom
