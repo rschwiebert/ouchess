@@ -8,7 +8,7 @@ from club.models import Player, Rating, Ladder
 # Create your views here.
 def index(request):
     template = loader.get_template('club/index.html')
-    context = RequestContext(request,{})
+    context = RequestContext(request, {})
     return HttpResponse(template.render(context))
 
 
@@ -32,6 +32,7 @@ class PlayerListView(ListView):
 
 class LadderListView(ListView):
     model = Ladder
+
 
 class LadderRatingListView(ListView):
     model = Rating

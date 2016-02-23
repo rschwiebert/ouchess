@@ -183,7 +183,6 @@ def set_ratings(sender, instance, created, **kwargs):
             raise Exception('What game result code is this? %d' % instance.result)
             
         
-
 # People join ladders at the bottom
 @receiver(post_save, sender=Rating)
 def set_rank(sender, instance, created, **kwargs):
