@@ -96,34 +96,34 @@ def insert(player1, player2, ladder, above=False):
     p1_rating = Rating.objects.get(player=player1, ladder=ladder)
     p2_rating = Rating.objects.get(player=player2, ladder=ladder)
     if above:
-        new_rank = p1_rating.rank
+        new_rank = p1_rating.ranking
     else:
-        new_rank = p1_rating.rank + 1
+        new_rank = p1_rating.ranking + 1
     move = Rating.objects.filter(ladder=ladder, rank__lte=new_rank)
     for rating in move:
-        rating.rank += 1
+        rating.ranking += 1
         rating.save()
-    p2_rating.rank = new_rank
+    p2_rating.ranking = new_rank
     p2_rating.save()
 
 def demote(target, ladder):
     """Penalize player by dropping 1 rank on given ladder"""
     target_rating = Rating.objects.get(player=target, ladder=ladder)
-    other = ladder.rating_set.filter(rank=target_rating.rank + 1)
+    other = ladder.rating_set.filter(rank=target_rating.ranking + 1)
     if other.exists():
         other = other[0]
-        target.rank, other.rank = (other.rank, target.rank )
+        target.ranking, other.ranking = (other.ranking, target.ranking )
         target.save()
         other.save()
 
 def remove(target, ladder):
     """Strip player of rank, mark as inactive, adjust all other ranks accordingly."""
     target_rating = Rating.objects.get(player=target, ladder=ladder)
-    lower = ladder.rating_set.filter(rank__lt=target_rating.rank)
+    lower = ladder.rating_set.filter(rank__lt=target_rating.ranking)
     for rating in lower:
-        rating.rank += 1
+        rating.ranking += 1
         rating.save()
-    target_rating.rank = None
+    target_rating.ranking = None
     target_rating.is_active = False
     target_rating.save()
 
@@ -133,7 +133,7 @@ def rejoin(target, ladder):
     target_rating.is_active = True
     max_rank = ladder.rating_set.aggregate(models.Max('ranking'))
     max_rank = max_rank['ranking__max']
-    target_rating.rank = max_rank + 1
+    target_rating.ranking = max_rank + 1
     target_rating.save()
         
 #####
@@ -165,17 +165,17 @@ def set_ratings(sender, instance, created, **kwargs):
            
         # compute new ranks      
         if instance.result == 0:
-            if white_rating.rank > black_rating.rank:
+            if white_rating.ranking > black_rating.ranking:
                 pass
             else:
                 insert(black, white, ladder, above=True)
         elif instance.result == 1:
-            if white_rating.rank > black_rating.rank:
+            if white_rating.ranking > black_rating.ranking:
                 insert(black, white, ladder, above=True)
             else:
                 pass
         elif instance.result == 2:
-            if white_rating.rank > black_rating.rank:
+            if white_rating.ranking > black_rating.ranking:
                 pass
             else:
                 insert(black, white, ladder, above=False)

@@ -37,6 +37,9 @@ class LadderListView(ListView):
 class LadderRatingListView(ListView):
     model = Rating
 
+    def get_template_names(self):
+        return ['club/ladder_rating_list.html']
+
     @property
     def ladder(self):
         return Ladder.objects.get(id=self.kwargs['pk']) or None
@@ -47,8 +50,28 @@ class LadderRatingListView(ListView):
         return context
 
     def get_queryset(self, **kwargs):
-        current_ladder = Ladder.objects.get(id=self.kwargs['pk'])
         queryset = super(ListView, self).get_queryset(**kwargs)
-        queryset = queryset.filter(ladder=current_ladder).order_by('-rating')
+        queryset = queryset.filter(ladder=self.ladder).order_by('-rating')
         return queryset
     
+class LadderRankingListView(ListView):
+    model = Rating
+
+    def get_template_names(self):
+        return ['club/ladder_ranking_list.html']
+
+    def get_context_data(self):
+        context = super(ListView, self).get_context_data()
+        context['ladder'] = self.ladder
+        return context
+
+    @property
+    def ladder(self):
+        return Ladder.objects.get(id=self.kwargs['pk']) or None
+
+    def get_queryset(self, **kwargs):
+        queryset = super(ListView, self).get_queryset(**kwargs)
+        queryset = queryset.filter(ladder=self.ladder).order_by('ranking')
+        return queryset
+
+

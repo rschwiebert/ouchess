@@ -1,0 +1,6 @@
+Rankings for {{ ladder.name }}
+<hr>
+
+{% for object in object_list %}
+    <li>#{{ object.ranking }} {{ object.player }} ({{ object.rating }})</li>
+{% endfor %}
