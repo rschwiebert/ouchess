@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.generic import DetailView, ListView
 import requests
-from club.models import Player, Rating, Ladder
+from club.models import Player, Ranking, Ladder, Rating
 
 # Create your views here.
 def index(request):

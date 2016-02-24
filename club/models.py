@@ -69,9 +69,25 @@ class Game(models.Model):
 class Rating(models.Model):
     player = models.ForeignKey(Player)
     ladder = models.ForeignKey(Ladder)
-    rating = models.IntegerField(default=1200)
+    rating = models.IntegerField()
+    timestamp = models.DateTimeField(blank=True)
+        
+
+class Ranking(models.Model):
+    player = models.ForeignKey(Player)
+    ladder = models.ForeignKey(Ladder)
     ranking = models.IntegerField(null=True, blank=True)
+    initial_rating = models.IntegerField(default=1200)
     is_active = models.BooleanField(default=True)
+    
+    @property
+    def rating(self):
+        query = Rating.objects.filter(player=self.player, ladder=self.ladder).order_by('-timestamp')
+        if query.exists():
+            # latest rating for this player on this ladder
+            return query[0].rating
+        else:
+            return initial_rating
 
     def __unicode__(self):
         return '%s (%d) [%s]' % (self.player.user.username, self.rating, self.ladder.name)
@@ -82,59 +98,85 @@ class Rating(models.Model):
 #####
 # Rating computation methods
 #####
-def calculate_rating(target, ladder):
+def calculate_ratings(ladder, white, black):
     # Successful execution of the following line depends on validity of 
-    # the formula with 'target' plugged in
+    # the formula with 'white' and 'black' plugged in
+    # must return a tuple (white_rating, black_rating)
     return eval(ladder.algorithm.formula)
-    
+
+def set_ratings(white_ranking, black_ranking, datetime):
+    """
+    Historical record of rating changes.
+    It is important for players to provide good datetimes for their game reports
+    """
+    ladder = white_ranking.ladder
+    new_white_rating, new_black_rating = calculate_ratings(
+        ladder, white_ranking.rating, black_ranking.rating)
+    Rating.objects.create(
+        ladder=ladder, player=white, rating=new_white_rating, timestamp=datetime)        
+    Rating.objects.create(
+        ladder=ladder, player=black, rating=new_black_rating, timestamp=datetime)        
+   
+def crunch_ratings(ladder):
+    """
+    Nuclear option to recompute all ratings on a ladder from scratch based on game history
+    """
+    # blow away old ratings
+    old_ratings = Ratings.objects.filter(ladder=ladder)
+    old_ratings.delete()
+
+    games = ladder.game_set.order_by('datetime')
+    for game in games:
+        set_rating(white_ranking, black_ranking, game.datetime)
+
 #####
 # Rank manipulation helper methods
 #####
 def insert(player1, player2, ladder, above=False):
     """If above is True, insert player1 immediately above player2 in the ranking and 
     adjust all other ranks. If above is False, insert player1 immediately below player2."""
-    p1_rating = Rating.objects.get(player=player1, ladder=ladder)
-    p2_rating = Rating.objects.get(player=player2, ladder=ladder)
+    p1_rank = Ranking.objects.get(player=player1, ladder=ladder)
+    p2_rank = Ranking.objects.get(player=player2, ladder=ladder)
     if above:
-        new_rank = p1_rating.ranking
+        new_rank = p1_ranking.rank
     else:
-        new_rank = p1_rating.ranking + 1
-    move = Rating.objects.filter(ladder=ladder, rank__lte=new_rank)
-    for rating in move:
-        rating.ranking += 1
-        rating.save()
-    p2_rating.ranking = new_rank
-    p2_rating.save()
+        new_rank = p1_ranking.rank + 1
+    move = Ranking.objects.filter(ladder=ladder, rank__lte=new_rank)
+    for raking in move:
+        raking.rank += 1
+        ranking.save()
+    p2_ranking.rank = new_rank
+    p2_ranking.save()
 
 def demote(target, ladder):
     """Penalize player by dropping 1 rank on given ladder"""
-    target_rating = Rating.objects.get(player=target, ladder=ladder)
-    other = ladder.rating_set.filter(rank=target_rating.ranking + 1)
+    target_ranking = Ranking.objects.get(player=target, ladder=ladder)
+    other = ladder.ranking_set.filter(rank=target_ranking.rank + 1)
     if other.exists():
         other = other[0]
-        target.ranking, other.ranking = (other.ranking, target.ranking )
+        target.rank, other.rank = (other.rank, target.rank )
         target.save()
         other.save()
 
 def remove(target, ladder):
     """Strip player of rank, mark as inactive, adjust all other ranks accordingly."""
-    target_rating = Rating.objects.get(player=target, ladder=ladder)
-    lower = ladder.rating_set.filter(rank__lt=target_rating.ranking)
-    for rating in lower:
-        rating.ranking += 1
-        rating.save()
-    target_rating.ranking = None
-    target_rating.is_active = False
-    target_rating.save()
+    target_ranking = Ranking.objects.get(player=target, ladder=ladder)
+    lower = ladder.ranking_set.filter(rank__lt=target_ranking.rank)
+    for ranking in lower:
+        ranking.rank += 1
+        ranking.save()
+    target_ranking.rank = None
+    target_ranking.is_active = False
+    target_ranking.save()
 
 def rejoin(target, ladder):
     """Mark the player as active again and put them at the bottom of the ladder."""
-    target_rating = Rating.objects.get(player=target, ladder=ladder)
-    target_rating.is_active = True
-    max_rank = ladder.rating_set.aggregate(models.Max('ranking'))
+    target_ranking = Ranking.objects.get(player=target, ladder=ladder)
+    target_ranking.is_active = True
+    max_rank = ladder.ranking_set.aggregate(models.Max('ranking'))
     max_rank = max_rank['ranking__max']
-    target_rating.ranking = max_rank + 1
-    target_rating.save()
+    target_ranking.rank = max_rank + 1
+    target_ranking.save()
         
 #####
 # Signals
@@ -148,34 +190,30 @@ def add_player(sender, instance, created, **kwargs):
 
 # Hook ratings from players at the time the game record is created
 @receiver(post_save, sender=Game)
-def set_ratings(sender, instance, created, **kwargs):
+def set_rankings(sender, instance, created, **kwargs):
     if created:
         white = instance.white
         black = instance.black
         ladder = instance.ladder
-        white_rating = instance.ladder.rating_set.get(player=white)
-        black_rating = instance.ladder.rating_set.get(player=black)
-        instance.white_rating = white_rating.rating
-        instance.black_rating = black_rating.rating
-        instance.save()
+        white_ranking = instance.ladder.ranking_set.get(player=white)
+        black_ranking = instance.ladder.ranking_set.get(player=black)
         
         # compute new ratings
-        calculate_rating(white, ladder)
-        calculate_rating(black, ladder)
-           
+        set_ratings(white_ranking, black_ranking, instance.datetime)
+        
         # compute new ranks      
         if instance.result == 0:
-            if white_rating.ranking > black_rating.ranking:
+            if white_ranking.rank > black_ranking.rank:
                 pass
             else:
                 insert(black, white, ladder, above=True)
         elif instance.result == 1:
-            if white_rating.ranking > black_rating.ranking:
+            if white_ranking.rank > black_ranking.rank:
                 insert(black, white, ladder, above=True)
             else:
                 pass
         elif instance.result == 2:
-            if white_rating.ranking > black_rating.ranking:
+            if white_ranking.rank > black_ranking.rank:
                 pass
             else:
                 insert(black, white, ladder, above=False)
@@ -184,10 +222,10 @@ def set_ratings(sender, instance, created, **kwargs):
             
         
 # People join ladders at the bottom
-@receiver(post_save, sender=Rating)
+@receiver(post_save, sender=Ranking)
 def set_rank(sender, instance, created, **kwargs):
     if created:
-        max_rank = instance.ladder.rating_set.aggregate(models.Max('ranking'))
+        max_rank = instance.ladder.ranking_set.aggregate(models.Max('ranking'))
         max_rank = max_rank['ranking__max']
-        instance.ranking = max_rank + 1
+        instance.rank = max_rank + 1
         instance.save()
