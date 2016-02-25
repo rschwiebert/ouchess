@@ -76,7 +76,7 @@ class Rating(models.Model):
 class Ranking(models.Model):
     player = models.ForeignKey(Player)
     ladder = models.ForeignKey(Ladder)
-    ranking = models.IntegerField(null=True, blank=True)
+    rank = models.IntegerField(null=True, blank=True)
     initial_rating = models.IntegerField(default=1200)
     is_active = models.BooleanField(default=True)
     
@@ -87,10 +87,10 @@ class Ranking(models.Model):
             # latest rating for this player on this ladder
             return query[0].rating
         else:
-            return initial_rating
+            return self.initial_rating
 
     def __unicode__(self):
-        return '%s (%d) [%s]' % (self.player.user.username, self.rating, self.ladder.name)
+        return '#%d %s (%d) [%s]' % (self.ranking, self.player.user.username, self.rating, self.ladder.name)
 
     class Meta:
         unique_together = ('player', 'ladder')
