@@ -90,7 +90,7 @@ class Ranking(models.Model):
             return self.initial_rating
 
     def __unicode__(self):
-        return '#%d %s (%d) [%s]' % (self.ranking, self.player.user.username, self.rating, self.ladder.name)
+        return '#%d %s (%d) [%s]' % (self.rank, self.player.user.username, self.rating, self.ladder.name)
 
     class Meta:
         unique_together = ('player', 'ladder')
@@ -225,7 +225,7 @@ def set_rankings(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Ranking)
 def set_rank(sender, instance, created, **kwargs):
     if created:
-        max_rank = instance.ladder.ranking_set.aggregate(models.Max('ranking'))
-        max_rank = max_rank['ranking__max']
+        max_rank = instance.ladder.ranking_set.aggregate(models.Max('rank'))
+        max_rank = max_rank['rank__max']
         instance.rank = max_rank + 1
         instance.save()
