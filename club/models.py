@@ -76,7 +76,7 @@ class Game(models.Model):
 class Rating(models.Model):
     player = models.ForeignKey(Player)
     ladder = models.ForeignKey(Ladder)
-    rating = models.IntegerField()
+    rating = models.DecimalField(decimal_places=3, max_digits=7)
     timestamp = models.DateTimeField(blank=True)
 
     def __unicode__(self):
