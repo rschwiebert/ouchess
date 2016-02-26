@@ -14,13 +14,20 @@ from django.dispatch import receiver
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_student_member = models.NullBooleanField(blank=True, null=True)
+
+    def rating(self, ladder):
+        ratings = ladder.rating_set.filter(player=self).order_by('-timestamp')
+        if ratings:
+            return ratings[0].rating
+        else:
+            return ladder.ranking_set.get(player=self).initial_rating
     	
     def __unicode__(self):
         return self.user.username
 
 class Algorithm(models.Model):
     name = models.CharField(max_length=30, blank=True, null=True)
-    formula = models.CharField(max_length=100)
+    formula = models.CharField(max_length=2500)
     params = JsonBField(default={}, blank=True)
 
     def __unicode__(self):
@@ -29,7 +36,7 @@ class Algorithm(models.Model):
 
 class Ladder(models.Model):
     name = models.CharField(max_length=30)
-    rating_algorithm = models.ForeignKey(Algorithm)
+    algorithm = models.ForeignKey(Algorithm)
     location = models.CharField(max_length=30, null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
@@ -56,12 +63,12 @@ class Game(models.Model):
     ladder = models.ForeignKey(Ladder)
     datetime = models.DateTimeField(null=True, blank=True)
     round = models.SmallIntegerField(null=True, blank=True)
-    status = models.SmallIntegerField(choices=Choices((0, 'public'), (1, 'private')))
+    status = models.SmallIntegerField(choices=Choices((0, 'public'), (1, 'private')), default=0)
     eco = models.CharField(max_length=50, null=True, blank=True)
     pgn = models.CharField(max_length=2500, null=True, blank=True)
 
     def __unicode__(self):
-        return '%s (%d) - %s (%d): %s [%s]' % (self.white.user.username, self.white_rating,
+        return '%s (%r) - %s (%r): %s [%s]' % (self.white.user.username, self.white_rating,
                                                self.black.user.username, self.black_rating,
                                                self.get_result_display(), self.datetime)
 
@@ -71,6 +78,9 @@ class Rating(models.Model):
     ladder = models.ForeignKey(Ladder)
     rating = models.IntegerField()
     timestamp = models.DateTimeField(blank=True)
+
+    def __unicode__(self):
+        return '%s (%d) %s' % (self.player.user.username, self.rating, self.ladder)
         
 
 class Ranking(models.Model):
@@ -98,24 +108,23 @@ class Ranking(models.Model):
 #####
 # Rating computation methods
 #####
-def calculate_ratings(ladder, white, black):
-    # Successful execution of the following line depends on validity of 
-    # the formula with 'white' and 'black' plugged in
-    # must return a tuple (white_rating, black_rating)
-    return eval(ladder.algorithm.formula)
+def calculate_ratings(ladder, white, black, result):
+    exec('from rating_algs import %s as func' % ladder.algorithm.formula)
+    return func(white, black, result)
 
-def set_ratings(white_ranking, black_ranking, datetime):
+def set_ratings(white_ranking, black_ranking, result, datetime):
     """
     Historical record of rating changes.
     It is important for players to provide good datetimes for their game reports
     """
     ladder = white_ranking.ladder
     new_white_rating, new_black_rating = calculate_ratings(
-        ladder, white_ranking.rating, black_ranking.rating)
+        ladder, white_ranking.rating, black_ranking.rating, result)
     Rating.objects.create(
-        ladder=ladder, player=white, rating=new_white_rating, timestamp=datetime)        
+        ladder=ladder, player=white_ranking.player, rating=new_white_rating, timestamp=datetime)        
     Rating.objects.create(
-        ladder=ladder, player=black, rating=new_black_rating, timestamp=datetime)        
+        ladder=ladder, player=black_ranking.player, rating=new_black_rating, timestamp=datetime)
+    return new_white_rating, new_black_rating
    
 def crunch_ratings(ladder):
     """
@@ -127,6 +136,9 @@ def crunch_ratings(ladder):
 
     games = ladder.game_set.order_by('datetime')
     for game in games:
+        game.white_rating = game.white.rating(ladder)
+        game.black_rating = game.black.rating(ladder)
+        game.save()
         set_rating(white_ranking, black_ranking, game.datetime)
 
 #####
@@ -142,8 +154,8 @@ def insert(player1, player2, ladder, above=False):
     else:
         new_rank = p1_ranking.rank + 1
     move = Ranking.objects.filter(ladder=ladder, rank__lte=new_rank)
-    for raking in move:
-        raking.rank += 1
+    for ranking in move:
+        ranking.rank += 1
         ranking.save()
     p2_ranking.rank = new_rank
     p2_ranking.save()
@@ -199,7 +211,10 @@ def set_rankings(sender, instance, created, **kwargs):
         black_ranking = instance.ladder.ranking_set.get(player=black)
         
         # compute new ratings
-        set_ratings(white_ranking, black_ranking, instance.datetime)
+        instance.white_rating = white.rating(ladder)
+        instance.black_rating = black.rating(ladder)
+        instance.save()
+        set_ratings(white_ranking, black_ranking, instance.result, instance.datetime)
         
         # compute new ranks      
         if instance.result == 0:
