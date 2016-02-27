@@ -27,7 +27,7 @@ class Player(models.Model):
 
 class Algorithm(models.Model):
     name = models.CharField(max_length=30, blank=True, null=True)
-    formula = models.CharField(max_length=2500)
+    method = models.CharField(max_length=30, help_text="The name of the method used in rating_algs.py", null=True)
     params = JsonBField(default={}, blank=True)
 
     def __unicode__(self):
@@ -110,7 +110,7 @@ class Ranking(models.Model):
 #####
 def calculate_ratings(ladder, white, black, result):
     exec('from rating_algs import %s as func' % ladder.algorithm.formula)
-    return func(white, black, result)
+    return func(white, black, result, ladder)
 
 def set_ratings(white_ranking, black_ranking, result, datetime):
     """
@@ -119,7 +119,7 @@ def set_ratings(white_ranking, black_ranking, result, datetime):
     """
     ladder = white_ranking.ladder
     new_white_rating, new_black_rating = calculate_ratings(
-        ladder, white_ranking.rating, black_ranking.rating, result)
+        ladder, white_ranking.player, black_ranking.player, result)
     Rating.objects.create(
         ladder=ladder, player=white_ranking.player, rating=new_white_rating, timestamp=datetime)        
     Rating.objects.create(
