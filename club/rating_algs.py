@@ -20,7 +20,8 @@ def bogus2(white, black, result, ladder):
             black -= 1
     return (white, black)
 
-def fide(white, black, result, ladder):
+
+def fide(white, black, result, ladder, provisional_k=32, standard_k=24, provisional_limit=30):
     diff = abs(white.rating(ladder)-black.rating(ladder))
     pre_d = [4, 11, 18, 26, 33, 40, 47, 54, 62, 69, 77, 84, 92, 99, 107, 
          114, 122, 130, 138, 146, 154, 163, 171, 180, 189, 198, 207,
@@ -37,8 +38,8 @@ def fide(white, black, result, ladder):
     
     w_games = ladder.game_set.filter(Q(white=white) | Q(black=white)).count()
     b_games = ladder.game_set.filter(Q(white=black) | Q(black=black)).count()
-    w_k = 24 if w_games > 30 else 32
-    b_k = 24 if b_games > 30 else 32
+    w_k = standard_k if w_games > provisional_limit else provisional_k
+    b_k = standard_k if b_games > provisional_limit else provisional_k
 
     if result == 0:
         w_score = 1

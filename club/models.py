@@ -120,7 +120,8 @@ class Ranking(models.Model):
 #####
 def calculate_ratings(ladder, white, black, result):
     exec('from rating_algs import %s as func' % ladder.algorithm.method)
-    return func(white, black, result, ladder)
+    kwargs = ladder.algorithm.params
+    return func(white, black, result, ladder, **kwargs)
 
 def set_ratings(ladder, white, black, result, datetime):
     """
