@@ -122,18 +122,17 @@ def calculate_ratings(ladder, white, black, result):
     exec('from rating_algs import %s as func' % ladder.algorithm.method)
     return func(white, black, result, ladder)
 
-def set_ratings(white_ranking, black_ranking, result, datetime):
+def set_ratings(ladder, white, black, result, datetime):
     """
     Historical record of rating changes.
     It is important for players to provide good datetimes for their game reports
     """
-    ladder = white_ranking.ladder
     new_white_rating, new_black_rating = calculate_ratings(
-        ladder, white_ranking.player, black_ranking.player, result)
+        ladder, white, black, result)
     Rating.objects.create(
-        ladder=ladder, player=white_ranking.player, rating=new_white_rating, timestamp=datetime)        
+        ladder=ladder, player=white, rating=new_white_rating, timestamp=datetime)        
     Rating.objects.create(
-        ladder=ladder, player=black_ranking.player, rating=new_black_rating, timestamp=datetime)
+        ladder=ladder, player=black, rating=new_black_rating, timestamp=datetime)
     return new_white_rating, new_black_rating
    
 def crunch_ratings(ladder):
@@ -141,7 +140,7 @@ def crunch_ratings(ladder):
     Nuclear option to recompute all ratings on a ladder from scratch based on game history
     """
     # blow away old ratings
-    old_ratings = Ratings.objects.filter(ladder=ladder)
+    old_ratings = Rating.objects.filter(ladder=ladder.id)
     old_ratings.delete()
 
     games = ladder.game_set.order_by('datetime')
@@ -149,7 +148,7 @@ def crunch_ratings(ladder):
         game.white_rating = game.white.rating(ladder)
         game.black_rating = game.black.rating(ladder)
         game.save()
-        set_rating(white_ranking, black_ranking, game.datetime)
+        set_ratings(game.ladder, game.white, game.black, game.result, game.datetime)
 
 #####
 # Rank manipulation helper methods
@@ -224,7 +223,7 @@ def set_rankings(sender, instance, created, **kwargs):
         instance.white_rating = white.rating(ladder)
         instance.black_rating = black.rating(ladder)
         instance.save()
-        set_ratings(white_ranking, black_ranking, instance.result, instance.datetime)
+        set_ratings(ladder, white, black, instance.result, instance.datetime)
         
         # compute new ranks      
         if instance.result == 0:
