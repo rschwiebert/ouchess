@@ -21,6 +21,9 @@ class Player(models.Model):
             return ratings[0].rating
         else:
             return ladder.ranking_set.get(player=self).initial_rating
+
+    def int_rating(self, ladder):
+        return int(self.rating(ladder))
     	
     def __unicode__(self):
         return self.user.username
@@ -81,6 +84,10 @@ class Rating(models.Model):
 
     def __unicode__(self):
         return '%s (%d) %s' % (self.player.user.username, self.rating, self.ladder)
+
+    @property
+    def int_rating(self):
+        return int(self.rating)
         
 
 class Ranking(models.Model):
@@ -98,6 +105,9 @@ class Ranking(models.Model):
             return query[0].rating
         else:
             return self.initial_rating
+    @property
+    def int_rating(self):
+        return int(self.rating)
 
     def __unicode__(self):
         return '#%d %s (%d) [%s]' % (self.rank, self.player.user.username, self.rating, self.ladder.name)

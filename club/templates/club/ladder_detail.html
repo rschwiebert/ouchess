@@ -6,7 +6,7 @@ Location: {{ object.location }}
 <hr>
 <h2>Current rankings</h2>
 {% for ranking in ranking_list %}
-    <li>#{{ ranking.rank }} {{ ranking.player }} ({{ ranking.rating }})</li>
+    <li>#{{ ranking.rank }} {{ ranking.player }} ({{ ranking.int_rating }})</li>
 {% endfor %}
 
 <hr>

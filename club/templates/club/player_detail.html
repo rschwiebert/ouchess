@@ -2,7 +2,7 @@
 <h2>Ratings</h2>
 
 {% for rating in rating_list %}
-    <li>({{ rating.rating }}) <a href="/ladders/{{ rating.ladder.id }}">{{ rating.ladder.name }}</a></li>
+    <li>({{ rating.int_rating }}) <a href="/ladders/{{ rating.ladder.id }}">{{ rating.ladder.name }}</a></li>
 {% endfor %}
 
 <hr>

@@ -32,7 +32,7 @@ class LadderDetailView(DetailView):
         rankings = self.object.ranking_set.order_by('rank')
         context['ranking_list'] = rankings
 
-        ratings = list((ranking.player, ranking.rating) for ranking in rankings)
+        ratings = list((ranking.player, ranking.int_rating) for ranking in rankings)
         ratings = sorted(ratings, key=lambda x: x[1],  reverse=True)
         context['rating_list'] = ratings
         context['timestamp'] = datetime.datetime.now()
