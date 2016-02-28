@@ -4,7 +4,7 @@ from django.template import RequestContext, loader
 from django.views.generic import DetailView, ListView
 import requests
 import datetime
-from club.models import Player, Ranking, Ladder, Rating
+from club.models import Player, Ranking, Ladder, Rating, Game
 
 
 # Create your views here.
@@ -36,6 +36,10 @@ class LadderDetailView(DetailView):
         ratings = sorted(ratings, key=lambda x: x[1],  reverse=True)
         context['rating_list'] = ratings
         context['timestamp'] = datetime.datetime.now()
+
+        games = self.object.game_set.order_by('-datetime')
+        recent_games = games[:20]
+        context['recent_games'] = recent_games
         return context
 
 
@@ -45,4 +49,25 @@ class PlayerListView(ListView):
 
 class LadderListView(ListView):
     model = Ladder
+
+
+class LadderGameListView(ListView):
+    model = Game
+
+    def get_queryset(self):
+        queryset = super(ListView, self).get_queryset()
+        ladder_id = self.kwargs['pk']
+        return queryset.filter(ladder=ladder_id)
+
+    def get_context_data(self, **kwargs):
+        context = super(ListView, self).get_context_data(**kwargs)
+        ladder = Ladder.objects.get(id=self.kwargs['pk'])
+        context['ladder'] = ladder
+        return context
+
+    def get_template_names(self):
+        return ['club/ladder_games.html']
+
+
+
 

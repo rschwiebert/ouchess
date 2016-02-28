@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^players/(?P<pk>[0-9]+)$', club.views.PlayerDetailView.as_view(), name='player-detail'),
     url(r'^ladders/$', club.views.LadderListView.as_view(), name='ladder-list'),
     url(r'^ladders/(?P<pk>[0-9]+)$', club.views.LadderDetailView.as_view(), name='ladder-detail'),
+    url(r'^ladders/(?P<pk>[0-9]+)/games$', club.views.LadderGameListView.as_view(), name='ladder-games'),
 ]

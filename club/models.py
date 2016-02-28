@@ -119,7 +119,7 @@ class Ranking(models.Model):
 # Rating computation methods
 #####
 def calculate_ratings(ladder, white, black, result):
-    exec('from rating_algs import %s as func' % ladder.algorithm.formula)
+    exec('from rating_algs import %s as func' % ladder.algorithm.method)
     return func(white, black, result, ladder)
 
 def set_ratings(white_ranking, black_ranking, result, datetime):
@@ -157,13 +157,13 @@ def crunch_ratings(ladder):
 def insert(player1, player2, ladder, above=False):
     """If above is True, insert player1 immediately above player2 in the ranking and 
     adjust all other ranks. If above is False, insert player1 immediately below player2."""
-    p1_rank = Ranking.objects.get(player=player1, ladder=ladder)
-    p2_rank = Ranking.objects.get(player=player2, ladder=ladder)
+    p1_ranking = Ranking.objects.get(player=player1, ladder=ladder)
+    p2_ranking = Ranking.objects.get(player=player2, ladder=ladder)
     if above:
         new_rank = p1_ranking.rank
     else:
         new_rank = p1_ranking.rank + 1
-    move = Ranking.objects.filter(ladder=ladder, rank__lte=new_rank)
+    move = Ranking.objects.filter(ladder=ladder, rank__gte=new_rank)
     for ranking in move:
         ranking.rank += 1
         ranking.save()
@@ -228,17 +228,17 @@ def set_rankings(sender, instance, created, **kwargs):
         
         # compute new ranks      
         if instance.result == 0:
-            if white_ranking.rank > black_ranking.rank:
+            if white_ranking.rank < black_ranking.rank:
                 pass
             else:
                 insert(black, white, ladder, above=True)
         elif instance.result == 1:
-            if white_ranking.rank > black_ranking.rank:
+            if white_ranking.rank < black_ranking.rank:
                 insert(black, white, ladder, above=True)
             else:
                 pass
         elif instance.result == 2:
-            if white_ranking.rank > black_ranking.rank:
+            if white_ranking.rank < black_ranking.rank:
                 pass
             else:
                 insert(black, white, ladder, above=False)
