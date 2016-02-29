@@ -61,10 +61,11 @@ class Game(models.Model):
     black = models.ForeignKey(Player, related_name='black')
     white_rating = models.IntegerField(null=True, blank=True)
     black_rating = models.IntegerField(null=True, blank=True)
-    time_control = models.CharField(max_length=25)
+    time_control = models.CharField(max_length=25, null=True, blank=True)
     result = models.SmallIntegerField(choices=Choices((0, '1-0'),(1, '0-1'), (2, '1/2-1/2')))
     ladder = models.ForeignKey(Ladder)
-    datetime = models.DateTimeField(null=True, blank=True)
+    datetime = models.DateTimeField(null=True, blank=True, auto_now_add=True,
+        help_text='NOTE: game time MUST be sufficient to place it in sufficiently correct chronological order with other games.')
     round = models.SmallIntegerField(null=True, blank=True)
     status = models.SmallIntegerField(choices=Choices((0, 'public'), (1, 'private')), default=0)
     eco = models.CharField(max_length=50, null=True, blank=True)

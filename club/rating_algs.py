@@ -48,7 +48,7 @@ def fide(white, black, result, ladder, provisional_k=32, standard_k=24, provisio
         w_score = 0
         b_score = 1
     else:
-        w_score = b_score = 0.5
+        w_score = b_score = Decimal('0.5')
 
     for pair in pd:
         if pair[0] <= diff <= pair[1]:
