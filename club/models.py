@@ -82,6 +82,7 @@ class Rating(models.Model):
     ladder = models.ForeignKey(Ladder)
     rating = models.DecimalField(decimal_places=3, max_digits=7)
     timestamp = models.DateTimeField(blank=True)
+    game = models.ForeignKey(Game, null=True, blank=True, help_text='The game associated with this rating change.')
 
     def __unicode__(self):
         return '%s (%d) %s' % (self.player.user.username, self.rating, self.ladder)
@@ -124,17 +125,17 @@ def calculate_ratings(ladder, white, black, result):
     kwargs = ladder.algorithm.params
     return func(white, black, result, ladder, **kwargs)
 
-def set_ratings(ladder, white, black, result, datetime):
+def set_ratings(game):
     """
     Historical record of rating changes.
     It is important for players to provide good datetimes for their game reports
     """
     new_white_rating, new_black_rating = calculate_ratings(
-        ladder, white, black, result)
+        game.ladder, game.white, game.black, game.result)
     Rating.objects.create(
-        ladder=ladder, player=white, rating=new_white_rating, timestamp=datetime)        
+        ladder=game.ladder, player=game.white, rating=new_white_rating, timestamp=game.datetime, game=game)        
     Rating.objects.create(
-        ladder=ladder, player=black, rating=new_black_rating, timestamp=datetime)
+        ladder=game.ladder, player=game.black, rating=new_black_rating, timestamp=game.datetime, game=game)
     return new_white_rating, new_black_rating
    
 def crunch_ratings(ladder):
@@ -150,7 +151,7 @@ def crunch_ratings(ladder):
         game.white_rating = game.white.rating(ladder)
         game.black_rating = game.black.rating(ladder)
         game.save()
-        set_ratings(game.ladder, game.white, game.black, game.result, game.datetime)
+        set_ratings(game)
 
 #####
 # Rank manipulation helper methods
@@ -225,7 +226,7 @@ def set_rankings(sender, instance, created, **kwargs):
         instance.white_rating = white.rating(ladder)
         instance.black_rating = black.rating(ladder)
         instance.save()
-        set_ratings(ladder, white, black, instance.result, instance.datetime)
+        set_ratings(instance)
         
         # compute new ranks      
         if instance.result == 0:
