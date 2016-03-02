@@ -1,3 +1,7 @@
+{% extends "club/base.html" %}
+{% load staticfiles %}
+
+{% block body_block %}
 <h1>{{ object.user.username}}</h1>
 <h2>Rankings and Ratings</h2>
 
@@ -8,3 +12,5 @@
 <hr>
 
 <p><a href="{% url 'player-list' %}">Player list</a></p>
+
+{% endblock %}

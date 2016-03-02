@@ -1,4 +1,7 @@
+{% extends "club/base.html" %}
+{% load staticfiles %}
 
+{% block body_block %}
 
 <h1>{{ object.name }}</h1>
 Location: {{ object.location }}
@@ -28,3 +31,4 @@ Location: {{ object.location }}
 
 <p><a href="{% url 'ladder-list' %}">Ladder list</a></p>
 <p>Page refreshed at {{ timestamp }}</p>  
+{% endblock %}

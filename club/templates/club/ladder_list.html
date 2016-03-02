@@ -1,5 +1,15 @@
+{% extends "club/base.html" %}
+{% load staticfiles %}
+
+{% block body_block %}
+
 <h1>Ongoing ladders</h1>
 
 {% for object in object_list %}
     <li><a href="{% url 'ladder-detail' object.id %}">{{ object.name }}</a></li>
 {% endfor %}
+
+
+
+
+{% endblock %}
