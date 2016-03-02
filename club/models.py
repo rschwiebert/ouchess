@@ -53,7 +53,7 @@ class Ladder(models.Model):
                   "falls this many places")
 
     def __unicode__(self):
-        return '%s: %s-%s' % (self.name, self.start_date, self.end_date)
+        return '%s' % (self.name,)
 
 
 class Game(models.Model):
@@ -228,7 +228,10 @@ def set_rankings(sender, instance, created, **kwargs):
         instance.save()
         set_ratings(instance)
         
-        # compute new ranks      
+        # compute new ranks  
+        # Creation of a game will "reawaken" an inactive ranking 
+        # (no good way to automatically reverse this if the Game is retracted.)
+        white_ranking.is_active = black_ranking.is_active = True    
         if instance.result == 0:
             if white_ranking.rank < black_ranking.rank:
                 pass
@@ -254,5 +257,7 @@ def set_rank(sender, instance, created, **kwargs):
     if created:
         max_rank = instance.ladder.ranking_set.aggregate(models.Max('rank'))
         max_rank = max_rank['rank__max']
+        if max_rank == None:
+            max_rank = 0
         instance.rank = max_rank + 1
         instance.save()

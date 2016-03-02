@@ -1,5 +1,5 @@
 <h1>Ongoing ladders</h1>
 
 {% for object in object_list %}
-    <li><a href="/ladders/{{ object.id }}">{{ object.name }}</a></li>
+    <li><a href="{% url 'ladder-detail' object.id %}">{{ object.name }}</a></li>
 {% endfor %}

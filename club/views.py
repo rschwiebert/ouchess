@@ -19,8 +19,13 @@ class PlayerDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(DetailView, self).get_context_data(**kwargs)
-        ratings_list = Rating.objects.filter(player=self.object)
-        context['rating_list'] = ratings_list
+        rankings = Ranking.objects.filter(player=self.object)
+        ladders = [ranking.ladder for ranking in rankings]
+        ratings_rankings_list = []
+        for ranking in rankings:
+            ratings_rankings_list.append((ranking.ladder, ranking.rank, ranking.player.int_rating(ranking.ladder)))
+
+        context['ratings_rankings_list'] = ratings_rankings_list
         return context
 
 

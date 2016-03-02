@@ -1,10 +1,10 @@
 <h1>{{ object.user.username}}</h1>
-<h2>Ratings</h2>
+<h2>Rankings and Ratings</h2>
 
-{% for rating in rating_list %}
-    <li>({{ rating.int_rating }}) <a href="/ladders/{{ rating.ladder.id }}">{{ rating.ladder.name }}</a></li>
+{% for row in ratings_rankings_list %}
+    <li> <a href="{% url 'ladder-detail' row.0.id %}">{{ row.0.name }}</a> ({{ row.2 }})  #{{ row.1 }}</li>
 {% endfor %}
 
 <hr>
 
-<p><a href="/players">Player list</a></p>
+<p><a href="{% url 'player-list' %}">Player list</a></p>

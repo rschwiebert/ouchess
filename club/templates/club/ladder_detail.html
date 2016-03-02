@@ -6,7 +6,7 @@ Location: {{ object.location }}
 <hr>
 <h2>Current rankings</h2>
 {% for ranking in ranking_list %}
-    <li>#{{ ranking.rank }} {{ ranking.player }} ({{ ranking.int_rating }})</li>
+    <li>{% if ranking.is_active %}#{{ ranking.rank }}{% else %} ---- {% endif %} {{ ranking.player }} ({{ ranking.int_rating }})</li>
 {% endfor %}
 
 <hr>
@@ -26,5 +26,5 @@ Location: {{ object.location }}
 <p><a href="{% url 'ladder-games' object.id %}">All games from this ladder</a></p>
 <hr>
 
-<p><a href="/ladders">Ladder list</a></p>
+<p><a href="{% url 'ladder-list' %}">Ladder list</a></p>
 <p>Page refreshed at {{ timestamp }}</p>  

@@ -1,4 +1,4 @@
 <h1>Players</h1>
 {% for player in object_list %}
-    <li><a href="{{ player.id }}">{{ player.user.username }}</a></li>
+    <li><a href="{% url 'player-detail' player.id %}">{{ player.user.username }}</a></li>
 {% endfor %}
