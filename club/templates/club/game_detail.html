@@ -1,0 +1,10 @@
+{% extends "club/base.html" %}
+{% load staticfiles %}
+
+{% block body_block %}
+
+<h1>{{object.white }} vs. {{ object.black }} <br> {{ object.get_result_display }}</h1>
+
+<p>{{ object.pgn }}</p>
+
+{% endblock %}

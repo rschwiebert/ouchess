@@ -1,0 +1,10 @@
+{% extends "club/base.html" %}
+{% load staticfiles %}
+
+{% block body_block %}
+
+{% for object in object_list %}
+<li><a href="{% url 'game-detail' object.id %}">{{ object }}</a></li>
+{% endfor %}
+
+{% endblock %}

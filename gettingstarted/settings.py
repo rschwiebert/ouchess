@@ -28,16 +28,19 @@ SECRET_KEY = 'i+acxn5(akgsn!sr4^qgf(^m&*@+g1@u^t@=8s@axc41ml*f=s'
 DEBUG = True
 
 
+LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = '/games/'
+
 # Application definition
 
 INSTALLED_APPS = (
+    'club',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'club'
+    'django.contrib.staticfiles'
 )
 
 MIDDLEWARE_CLASSES = (

@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.generic import DetailView, ListView
+from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.decorators import login_required
 import requests
 import datetime
 from club.models import Player, Ranking, Ladder, Rating, Game
@@ -73,6 +76,12 @@ class LadderGameListView(ListView):
     def get_template_names(self):
         return ['club/ladder_games.html']
 
+class GameListView(ListView):
+    model = Game
 
 
+class GameDetailView(LoginRequiredMixin, DetailView):
+    model = Game
+    redirect_field_name = '/games/'
 
+        
