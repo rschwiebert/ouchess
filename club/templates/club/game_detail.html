@@ -3,8 +3,45 @@
 
 {% block body_block %}
 
-<h1>{{object.white }} vs. {{ object.black }} <br> {{ object.get_result_display }}</h1>
+<h1>{{ object.white }} vs. {{ object.black }} <br> {{ object.get_result_display }}</h1>
 
-<p>{{ object.pgn }}</p>
+{% if object.pgn %}
+<div id="demo-container"></div>  
+<div id="demo-moves"></div>  
+
+<p></p>
+
+<!-- Support libraries from Yahoo YUI project -->  
+<script type="text/javascript"  
+    src="http://chesstempo.com/js/pgnyui.js">  
+</script>   
+<script type="text/javascript"  
+    src="http://chesstempo.com/js/pgnviewer.js">  
+</script>  
+<link  
+ type="text/css"   
+ rel="stylesheet"   
+ href="http://chesstempo.com/css/board-min.css">  
+</link>  
+
+
+
+<script>     
+new PgnViewer(  
+  { boardName: "demo",  
+    pgnString: "{{ object.pgn }}",  
+    pieceSet: 'leipzig',   
+    pieceSize: 46  
+  }  
+);  
+</script>
+This board is brought to you by <a href="http://chesstempo.com">ChessTempo</a>.
+
+{% else %}
+(Moves not available. Consider adding a pgn for the game if you are an owner or an admin.)
+{% endif %}
 
 {% endblock %}
+
+
+
