@@ -3,7 +3,16 @@
 
 {% block body_block %}
 
-<h1>{{ object.white }} vs. {{ object.black }} <br> {{ object.get_result_display }}</h1>
+<h1><a href="{% url 'player-detail' object.white.id %}">{{ object.white }}</a> vs. <a href="{% url 'player-detail' object.black.id %}">{{ object.black }}</a>: {{ object.get_result_display }}</h1>
+<br>
+{% if object.time_control %}
+Time control: {{ object.time_control }}
+{% endif %}
+{% if game.ladder.ladder_type == 0 %}
+Ladder: {{ game.ladder.name }}
+{% elif game.ladder.ladder_type == 1 %}
+Tournament: 
+{% endif %} {{ game.ladder.name }}
 
 {% if object.pgn %}
 <div id="demo-container"></div>  
@@ -38,7 +47,7 @@ new PgnViewer(
 This board is brought to you by <a href="http://chesstempo.com">ChessTempo</a>.
 
 {% else %}
-(Moves not available. Consider adding a pgn for the game if you are an owner or an admin.)
+<p>(Moves not available. Consider adding a pgn for the game if you are an owner or an admin.)</p>
 {% endif %}
 
 {% endblock %}

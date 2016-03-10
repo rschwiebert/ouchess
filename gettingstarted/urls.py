@@ -18,6 +18,9 @@ urlpatterns = [
     url(r'^ladders/$', club.views.LadderListView.as_view(), name='ladder-list'),
     url(r'^ladders/(?P<pk>[0-9]+)$', club.views.LadderDetailView.as_view(), name='ladder-detail'),
     url(r'^ladders/(?P<pk>[0-9]+)/games$', club.views.LadderGameListView.as_view(), name='ladder-games'),
+    url(r'^tourneys/$', club.views.TourneyListView.as_view(), name='tourney-list'),
+    url(r'^tourneys/(?P<pk>[0-9]+)$', club.views.TourneyDetailView.as_view(), name='tourney-detail'),
+    url(r'^tourneys/(?P<pk>[0-9]+)/games$', club.views.TourneyGameListView.as_view(), name='tourney-games'),
     url(r'^games/$', club.views.GameListView.as_view(), name='game-list'),
     url(r'^games/(?P<pk>[0-9]+)$', club.views.GameDetailView.as_view(), name='game-detail'),
     

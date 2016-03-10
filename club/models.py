@@ -28,6 +28,7 @@ class Player(models.Model):
     def __unicode__(self):
         return self.user.username
 
+
 class Algorithm(models.Model):
     name = models.CharField(max_length=30, blank=True, null=True)
     method = models.CharField(max_length=30, help_text="The name of the method used in rating_algs.py", null=True)
@@ -40,7 +41,10 @@ class Algorithm(models.Model):
 class Ladder(models.Model):
     name = models.CharField(max_length=30)
     algorithm = models.ForeignKey(Algorithm)
+    ladder_type = models.SmallIntegerField(choices=Choices((0, 'ladder'),(1, 'tournament'),),
+                                           null=True, blank=True)
     location = models.CharField(max_length=30, null=True, blank=True)
+    description = models.CharField(max_length=200, null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     inactivity_period = models.IntegerField(
@@ -72,9 +76,9 @@ class Game(models.Model):
     pgn = models.CharField(max_length=2500, null=True, blank=True)
 
     def __unicode__(self):
-        return '%s (%r) - %s (%r): %s [%s]' % (self.white.user.username, self.white_rating,
+        return '%s (%r) - %s (%r): %s' % (self.white.user.username, self.white_rating,
                                                self.black.user.username, self.black_rating,
-                                               self.get_result_display(), self.datetime)
+                                               self.get_result_display())
 
 
 class Rating(models.Model):

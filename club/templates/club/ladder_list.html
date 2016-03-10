@@ -5,11 +5,26 @@
 
 <h1>Ongoing ladders</h1>
 
-{% for object in object_list %}
+{% for object in current_ladder_list %}
     <li><a href="{% url 'ladder-detail' object.id %}">{{ object.name }}</a></li>
 {% endfor %}
 
+{% if closed_ladder_list %}
+<hr>
+<h1>Closed ladders</h1>
+
+{% for object in closed_ladder_list %}
+    <li><a href="{% url 'ladder-detail' object.id %}">{{ object.name }}</a></li>
+{% endfor %}
+{% endif %}
 
 
+{% if tourney_list %}
+<hr>
+<h1>Tournaments</h1>
 
+{% for object in tourney_list %}
+    <li><a href="{% url 'tourney-detail' object.id %}">{{ object.name }}</a></li>
+{% endfor %}
+{% endif %}
 {% endblock %}

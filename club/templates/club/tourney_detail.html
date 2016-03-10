@@ -4,13 +4,7 @@
 {% block body_block %}
 
 <h1>{{ object.name }}</h1>
-{% if object.description %}
-<p>{{ object.description }}</p>
-{% endif %}
-{% if object.location %}
-<p>Location: {{ object.location }}</p>
-{% endif %}
-<p>Players: {{ ranking_list|length }}</p>
+Location: {{ object.location }}
 
 <hr>
 <h2>Current rankings</h2>
@@ -20,19 +14,16 @@
 
 <hr>
 
-<h2>Current ratings</h2>
+<h2>Player rating performance</h2>
 
 {% for rating in rating_list %}
     <li>{{ rating.0 }} ({{ rating.1 }})</li>
 {% endfor %}
 
 <hr>
-<h2>Recent games</h2>
-{% for game in recent_games %}
-    <li>{{ game.white.user.username }} vs {{ game.black.user.username }}: {{ game.get_result_display}}</li>
-{% endfor %}
 
-<p><a href="{% url 'ladder-games' object.id %}">All games from this ladder</a></p>
+
+<p><a href="{% url 'tourney-games' object.id %}">All games from this tournament</a></p>
 <hr>
 
 <p><a href="{% url 'ladder-list' %}">Ladder and tournament list</a></p>
