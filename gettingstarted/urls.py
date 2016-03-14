@@ -23,5 +23,9 @@ urlpatterns = [
     url(r'^tourneys/(?P<pk>[0-9]+)/games$', club.views.TourneyGameListView.as_view(), name='tourney-games'),
     url(r'^games/$', club.views.GameListView.as_view(), name='game-list'),
     url(r'^games/(?P<pk>[0-9]+)$', club.views.GameDetailView.as_view(), name='game-detail'),
+    url(r'^faq$', club.views.FAQView.as_view(), name='faq'),
+    url(r'^tools$', club.views.ToolView.as_view(),name='tools'),
+    url(r'^tools/pgn_editor$', club.views.PGNView.as_view(), name='pgn-editor'),
+    url(r'^tools/pgn_editor/(?P<pk>[0-9]+)$', club.views.PGNView.as_view(), name='pgn-edit-game'),
     
 ]

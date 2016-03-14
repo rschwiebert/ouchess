@@ -45,9 +45,16 @@ new PgnViewer(
 );  
 </script>
 This board is brought to you by <a href="http://chesstempo.com">ChessTempo</a>.
+{% if user_can_edit_pgn %}
+<a href="{% url 'pgn-edit-game' object.id %}">Edit this game</a>
+{% endif %}
 
+{% elif user_can_edit_pgn %}
+<hr>
+<p>(Moves not available. If you are an admin or a player in this game, use the <a href="{% url 'pgn-edit-game' object.id %}">pgn submission form</a> to record your game!)</p>
 {% else %}
-<p>(Moves not available. Consider adding a pgn for the game if you are an owner or an admin.)</p>
+<p>(Moves not available for this game.)</p>
+
 {% endif %}
 
 {% endblock %}

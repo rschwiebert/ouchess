@@ -1,0 +1,24 @@
+{% extends "club/base.html" %}
+{% load staticfiles %}
+
+{% block body_block %}
+
+{% if user_can_edit_pgn and game_id %}
+<p>You are able to edit with the pgn for <b>{{ game }}</b> with this form.</p>
+
+<form method="post" action="">
+{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" value="Save move list" />
+</form>
+
+{% else %}
+<p>The pgn editor tool can be used to generate pgn files and animated game diagrams.</p>
+{% endif %}
+
+
+<hr>
+<div style="width:590px;border:1px solid black"><div style="height:22px;padding:3px 10px 0px 4px;background-color: #8080ff; color:white;font:normal normal normal 10pt verdana,helvetica,arial,sans-serif;text-align:left"><div style="float:right;font-size:8pt"><img src="http://www.caissa.com/images/caissa-icon.png" alt="Play Online Chess" style="vertical-align:-4px"><a style="color:white" href="http://www.caissa.com/" target="_blank">Play Online Chess</a></div><b>PGN Editor Chess Tool</b></div><iframe src="http://www.caissa.com/htbin/pgn_edit" width="100%" height="420" frameborder="0" scrolling="no"><a href="http://www.caissa.com/chess-tools/pgn-editor.php">PGN Editor Chess Tool</a></iframe></div>
+
+
+{% endblock %}
