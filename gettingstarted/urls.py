@@ -2,6 +2,8 @@ from django.conf.urls import include, url
 
 from django.contrib import admin, auth
 from django.contrib.auth.views import login, logout, password_reset
+from django.views.generic.edit import CreateView
+from django.contrib.auth.forms import UserCreationForm
 admin.autodiscover()
 
 import club.views
@@ -27,5 +29,6 @@ urlpatterns = [
     url(r'^tools$', club.views.ToolView.as_view(),name='tools'),
     url(r'^tools/pgn_editor$', club.views.PGNView.as_view(), name='pgn-editor'),
     url(r'^tools/pgn_editor/(?P<pk>[0-9]+)$', club.views.PGNView.as_view(), name='pgn-edit-game'),
+    url(r'^register/$', CreateView.as_view(template_name='club/register.html', form_class=UserCreationForm, success_url='/'), name='register')
     
 ]
