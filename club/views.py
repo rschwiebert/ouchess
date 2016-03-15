@@ -9,10 +9,6 @@ from club.forms import PGNForm
 
 
 # Create your views here.
-def index(request):
-    template = loader.get_template('club/index.html')
-    context = RequestContext(request, {})
-    return HttpResponse(template.render(context))
 
 
 class PlayerDetailView(DetailView):
@@ -53,6 +49,7 @@ class LadderDetailView(DetailView):
 
 class TourneyDetailView(DetailView):
     model = Ladder
+    template_name = 'club/tourney_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(TourneyDetailView, self).get_context_data(**kwargs)
@@ -69,9 +66,6 @@ class TourneyDetailView(DetailView):
         recent_games = games[:20]
         context['recent_games'] = recent_games
         return context
-
-    def get_template_names(self):
-        return ['club/tourney_detail.html']
 
 
 class PlayerListView(ListView):
@@ -96,17 +90,16 @@ class LadderListView(ListView):
 
 class TourneyListView(ListView):
     model = Ladder
+    template_name = 'club/tourney_list.html'
     
     def get_queryset(self):
         queryset = super(TourneyListView, self).get_queryset()
         return queryset.filter(ladder_type=1)
 
-    def get_template_names(self):
-        return ['club/tourney_list.html']
-
 
 class LadderGameListView(ListView):
     model = Game
+    template_name = 'club/ladder_games.html'
 
     def get_queryset(self):
         queryset = super(LadderGameListView, self).get_queryset()
@@ -119,12 +112,10 @@ class LadderGameListView(ListView):
         context['ladder'] = ladder
         return context
 
-    def get_template_names(self):
-        return ['club/ladder_games.html']
-
 
 class TourneyGameListView(ListView):
     model = Game
+    template_name = 'club/tourney_games.html'
 
     def get_queryset(self):
         queryset = super(TourneyGameListView, self).get_queryset()
@@ -136,9 +127,6 @@ class TourneyGameListView(ListView):
         ladder = Ladder.objects.get(id=self.kwargs['pk'])
         context['ladder'] = ladder
         return context
-
-    def get_template_names(self):
-        return ['club/tourney_games.html']
 
 
 class GameListView(ListView):
@@ -159,16 +147,10 @@ class GameDetailView(LoginRequiredMixin, DetailView):
         else:
             context['user_can_edit_pgn'] = False
         return context
-        
-
-class FAQView(TemplateView):
-    def get_template_names(self):
-        return ['club/faq.html']
 
 
 class ToolView(LoginRequiredMixin, TemplateView):
-    def get_template_names(self):
-        return ['club/tools.html']
+    template_name = 'club/tools.html'
 
 
 class PGNView(LoginRequiredMixin, FormView):
