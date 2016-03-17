@@ -13,7 +13,12 @@ from django.dispatch import receiver
 
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    is_student_member = models.NullBooleanField(blank=True, null=True)
+    membership = models.SmallIntegerField(choices=Choices((0, 'unconfirmed'),
+                                                          (1, 'non-student member'),
+                                                          (2, 'student member')),
+                                          null=True, blank=True, default=0)
+    bio = models.CharField(max_length=300, null=True, blank=True)
+    visible = models.NullBooleanField(default=True)
 
     def rating(self, ladder):
         ratings = ladder.rating_set.filter(player=self).order_by('-timestamp')
