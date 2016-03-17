@@ -3,12 +3,13 @@
 
 {% block body_block %}
 
-<div class="jumbotron text-center">
+
   <div class="container">
-    <h1>Club index page</h1>
+    <h1 align="center">Ohio University Chess Ladder Site</h1>
+    <hr>
     <p><a href="{% url 'player-list' %}">Players</a></p>
     <p><a href="{% url 'ladder-list' %}">Ladders and tourneys</a></p>
     <p><a href="{% url 'game-list' %}">Games</a></p>
   </div>
-</div>
+
 {% endblock %}

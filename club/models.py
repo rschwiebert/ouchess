@@ -46,7 +46,7 @@ class Algorithm(models.Model):
 
 
 class Ladder(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=75)
     algorithm = models.ForeignKey(Algorithm)
     ladder_type = models.SmallIntegerField(choices=Choices((0, 'ladder'),
                                                            (1, 'tournament'),),

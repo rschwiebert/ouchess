@@ -71,6 +71,9 @@ class TourneyDetailView(DetailView):
 class PlayerListView(ListView):
     model = Player
 
+    def get_queryset(self):
+        return Player.objects.filter(visible=True).exclude(membership=0)
+
 
 class LadderListView(ListView):
     model = Ladder

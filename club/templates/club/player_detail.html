@@ -2,12 +2,30 @@
 {% load staticfiles %}
 
 {% block body_block %}
-<h1>{{ object.user.username}}</h1>
-<h2>Rankings and Ratings</h2>
+<h1>{{ object.user.username }}</h1>
+{% if request.user.is_authenticated and request.user.player.membership > 0 %}
+<h2>Profile:</h2>
+{% if object.bio %}
+<p>{{ object.bio }}</p>
+{% else %}
+<p><i>(No information.)</i></p>
+{% endif %}
+
+<hr>
+<h2>Rankings and Ratings:</h2>
 
 {% for row in ratings_rankings_list %}
     <li> <a href="{% url 'ladder-detail' row.0.id %}">{{ row.0.name }}</a> ({{ row.2 }})  #{{ row.1 }}</li>
 {% endfor %}
+
+{% elif request.user.is_authenticated and request.user.player.membership == 0 %}
+<hr>
+<p>(An administrator must confirm your membership status before you can see player details.)</p>
+
+{% else %}
+<hr>
+<p><i>(You must be <a href="{% url 'login' %}">logged in</a> to see more details about this player like current ladder rankings.)</i></p>
+{% endif %}
 
 <hr>
 
