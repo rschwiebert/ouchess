@@ -132,9 +132,9 @@ class TourneyGameListView(ListView):
         return context
 
 
-class GameListView(ListView):
+class GameListView(LoginRequiredMixin, ListView):
     model = Game
-
+    redirect_field_name = '/games/'
 
 class GameDetailView(LoginRequiredMixin, DetailView):
     model = Game
