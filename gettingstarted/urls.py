@@ -29,7 +29,7 @@ urlpatterns = [
         name='tourney-detail'),
     url(r'^tourneys/(?P<pk>[0-9]+)/games$',
         club.views.TourneyGameListView.as_view(), name='tourney-games'),
-    url(r'^games/$', club.views.GameListView.as_view(), name='game-list'),
+    # url(r'^games/$', club.views.GameListView.as_view(), name='game-list'),
     url(r'^games/(?P<pk>[0-9]+)$', club.views.GameDetailView.as_view(),
         name='game-detail'),
     url(r'^faq$', TemplateView.as_view(template_name='club/faq.html'), name='faq'),

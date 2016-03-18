@@ -4,8 +4,14 @@
 {% block body_block %}
 
 <h1>Players</h1>
+{% if request.user.is_authenticated and request.user.player.membership_status > 0 %}
 {% for player in object_list %}
     <li><a href="{% url 'player-detail' player.id %}">{{ player.user.username }}</a></li>
 {% endfor %}
+{% else %}
+<p>There are currently {{ object_list|length }} confirmed club members participating. You will be able to view the list if you confirmed as a member.</p>
+
+<p>To join them, register with the site, then inquire at the club meeting for an administrator who can confirm your memebership.</p>
+{% endif %}
 
 {% endblock %}
