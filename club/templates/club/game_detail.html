@@ -38,7 +38,7 @@ Tournament:
 <script>     
 new PgnViewer(  
   { boardName: "demo",  
-    pgnString: "{{ object.pgn }}",  
+    pgnString: "{{ object.pgn|escapejs }}",  
     pieceSet: 'leipzig',   
     pieceSize: 46  
   }  
