@@ -45,9 +45,26 @@ new PgnViewer(
 );  
 </script>
 This board is brought to you by <a href="http://chesstempo.com">ChessTempo</a>.<br>
-{% if user_can_edit_pgn %}
-<a href="{% url 'pgn-edit-game' object.id %}">Edit this game</a>
+{% if object.white.user == request.user and object.status == 2 %}
+<hr>
+Do you agree with this reported result?<br>
+<form action="" method="post">{% csrf_token %}
+    {{ form.as_ul }}
+    <input type="submit" value="Submit response" />
+</form>
+{% elif object.black.user == request.user and object.status == 1 %}
+<hr>
+Do you agree with this reported result?<br>
+<form action="" method="post">{% csrf_token %}
+    {{ form.as_ul }}
+    <input type="submit" value="Submit response" />
+</form>
 {% endif %}
+
+{% endif %}
+
+{% if user_can_edit_pgn and object.pgn %}
+<a href="{% url 'pgn-edit-game' object.id %}">Edit this game</a>
 
 {% elif user_can_edit_pgn %}
 <hr>

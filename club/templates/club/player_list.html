@@ -4,7 +4,7 @@
 {% block body_block %}
 
 <h1>Players</h1>
-{% if request.user.is_authenticated and request.user.player.membership > 0 %}
+{% if request.user.is_authenticated and request.user.player.membership > 0 or request.user.is_staff %}
 {% for player in object_list %}
     <li><a href="{% url 'player-detail' player.id %}">{{ player.user.username }}</a></li>
 {% endfor %}

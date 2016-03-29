@@ -26,4 +26,7 @@ class GameForm(forms.ModelForm):
         model = Game
         fields = ('white', 'black', 'time_control', 'result', 'datetime')
         hidden_fields = ('ladder', 'status')
+  
+class ConfirmGameForm(forms.Form):
+    response = forms.ChoiceField(choices=((0, 'Confirm'), (1, 'Dispute')), widget=forms.Select())
     

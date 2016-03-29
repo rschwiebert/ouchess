@@ -3,10 +3,10 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.generic import DetailView, ListView, TemplateView, FormView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, FormMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from club.models import Player, Ranking, Ladder, Game
-from club.forms import PGNForm, GameForm
+from club.forms import PGNForm, GameForm, ConfirmGameForm
 from django.db.models import Q
 
 
@@ -138,10 +138,13 @@ class TourneyGameListView(ListView):
 class GameListView(LoginRequiredMixin, ListView):
     model = Game
     redirect_field_name = '/games/'
+    
 
-class GameDetailView(LoginRequiredMixin, DetailView):
+class GameDetailView(LoginRequiredMixin, FormMixin, DetailView):
     model = Game
     redirect_field_name = '/games/'
+    form_class = ConfirmGameForm
+    success_url = '/games/'
     
     def get_context_data(self, **kwargs):
         context = super(GameDetailView, self).get_context_data(**kwargs)
@@ -153,6 +156,27 @@ class GameDetailView(LoginRequiredMixin, DetailView):
         else:
             context['user_can_edit_pgn'] = False
         return context
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        
+        if form.data['response'] == '0':
+            self.object.status = 3
+        elif form.data['response'] == '1' and self.object.white == self.request.user.player:
+            self.object.status = -1
+        elif form.data['response'] == '1' and self.object.black == self.request.user.player:
+            self.object.status = -2
+        self.object.save()
+        return super(GameDetailView, self).form_valid(form)
 
 
 class ToolView(LoginRequiredMixin, TemplateView):
