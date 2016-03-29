@@ -82,11 +82,17 @@ class Game(models.Model):
         help_text='NOTE: game time MUST be sufficient to place it in '
                   'sufficiently correct chronological order with other games.')
     round = models.SmallIntegerField(null=True, blank=True)
-    status = models.SmallIntegerField(choices=Choices((0, 'public'),
-                                                      (1, 'private')),
-                                      default=0)
+    visible = models.SmallIntegerField(choices=Choices((0, 'public'),
+                                                       (1, 'private')),
+                                       default=0)
     eco = models.CharField(max_length=50, null=True, blank=True)
     pgn = models.CharField(max_length=2500, null=True, blank=True)
+    status = models.SmallIntegerField(choices=Choices((-2, 'black disputes'),
+                                                      (-1, 'white disputes'),
+                                                      (0, 'withdrawn'),
+                                                      (1, 'white affirms'),
+                                                      (2, 'black affirms'),
+                                                      (3, 'confirmed')))
 
     def __unicode__(self):
         return '%s (%r) - %s (%r): %s' % (
@@ -141,6 +147,7 @@ class Ranking(models.Model):
 
     class Meta:
         unique_together = ('player', 'ladder')
+   
 
 #####
 # Rating computation methods

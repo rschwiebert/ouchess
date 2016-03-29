@@ -3,12 +3,11 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.generic import DetailView, ListView, TemplateView, FormView
+from django.views.generic.edit import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from club.models import Player, Ranking, Ladder, Game
-from club.forms import PGNForm
-
-
-# Create your views here.
+from club.forms import PGNForm, GameForm
+from django.db.models import Q
 
 
 class PlayerDetailView(DetailView):
@@ -24,6 +23,17 @@ class PlayerDetailView(DetailView):
                  ranking.player.int_rating(ranking.ladder)))
 
         context['ratings_rankings_list'] = ratings_rankings_list
+
+        ladder_games = Game.objects.filter(Q(white=self.object) | Q(black=self.object))
+        reported = ladder_games.filter(
+            Q(white=self.request.user.player, status=1)|Q(black=self.request.user.player, status=2))
+        awaiting = ladder_games.filter(
+            Q(white=self.request.user.player, status=2)|Q(black=self.request.user.player, status=1))
+        disputed = ladder_games.filter(status__in=[-1, -2])
+        context['awaiting'] = awaiting
+        context['reported'] = reported
+        context['disputed'] = disputed
+
         return context
 
 
@@ -40,10 +50,6 @@ class LadderDetailView(DetailView):
         ratings = sorted(ratings, key=lambda x: x[1],  reverse=True)
         context['rating_list'] = ratings
         context['timestamp'] = datetime.datetime.now()
-
-        games = self.object.game_set.order_by('-datetime')
-        recent_games = games[:20]
-        context['recent_games'] = recent_games
         return context
 
 
@@ -61,10 +67,6 @@ class TourneyDetailView(DetailView):
         ratings = sorted(ratings, key=lambda x: x[1],  reverse=True)
         context['rating_list'] = ratings
         context['timestamp'] = datetime.datetime.now()
-
-        games = self.object.game_set.order_by('-datetime')
-        recent_games = games[:20]
-        context['recent_games'] = recent_games
         return context
 
 
@@ -107,12 +109,13 @@ class LadderGameListView(ListView):
     def get_queryset(self):
         queryset = super(LadderGameListView, self).get_queryset()
         ladder_id = self.kwargs['pk']
-        return queryset.filter(ladder=ladder_id)
+        return queryset.filter(ladder=ladder_id, status=3)
 
     def get_context_data(self, **kwargs):
         context = super(LadderGameListView, self).get_context_data(**kwargs)
         ladder = Ladder.objects.get(id=self.kwargs['pk'])
         context['ladder'] = ladder
+        
         return context
 
 
@@ -156,6 +159,38 @@ class ToolView(LoginRequiredMixin, TemplateView):
     template_name = 'club/tools.html'
 
 
+class ReportGameView(LoginRequiredMixin, CreateView):
+    template_name = 'club/report_game.html'
+    form_class = GameForm
+    success_url = '/ladders/{ladder_id}/games'
+    
+    @property
+    def initial(self):
+        ladder_id = self.kwargs.get('pk', None)
+        if ladder_id:
+            return {'ladder': Ladder.objects.get(id=ladder_id)}
+        else:
+            return {}
+
+    def form_valid(self, form):
+        white = Player.objects.get(id=form.data['white'])
+        black = Player.objects.get(id=form.data['black'])
+        ladder_id = self.kwargs.get('pk', None)
+        ladder = Ladder.objects.get(id=ladder_id)
+        form.instance.ladder = ladder
+        
+        if self.request.user.is_staff:
+            form.instance.status = 3
+        elif self.request.user.player == white:
+            form.instance.status = 1
+        elif self.request.user.player == black:
+            form.instance.status = 2
+        else:
+            forms.ValidationError('Request user is not allowed to complete this form.')
+        
+        return super(ReportGameView, self).form_valid(form)
+
+
 class PGNView(LoginRequiredMixin, FormView):
     form_class = PGNForm
     template_name = 'club/pgn_editor.html'
@@ -193,3 +228,6 @@ class PGNView(LoginRequiredMixin, FormView):
         game.pgn = form.data['pgn_string']
         game.save()
         return super(PGNView, self).form_valid(form)
+
+
+

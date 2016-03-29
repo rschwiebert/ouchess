@@ -3,13 +3,13 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth.views import login, logout, password_reset
 from django.views.generic import TemplateView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, FormView
 from django.contrib.auth.forms import UserCreationForm
+from club.forms import GameForm
 admin.autodiscover()
 
 
 urlpatterns = [
-
     url(r'^$', TemplateView.as_view(template_name='club/index.html'), name='index'),
     url(r'^login/$', login, {'template_name': 'club/login.html'}, name='login'),
     url(r'^logout/$', logout, {'next_page': '/'}, name='logout'),
@@ -23,6 +23,8 @@ urlpatterns = [
         name='ladder-detail'),
     url(r'^ladders/(?P<pk>[0-9]+)/games$',
         club.views.LadderGameListView.as_view(), name='ladder-games'),
+    url(r'^ladders/(?P<pk>[0-9]+)/games/report$',
+        club.views.ReportGameView.as_view(), name='report-games'),
     url(r'^tourneys/$', club.views.TourneyListView.as_view(),
         name='tourney-list'),
     url(r'^tourneys/(?P<pk>[0-9]+)$', club.views.TourneyDetailView.as_view(),

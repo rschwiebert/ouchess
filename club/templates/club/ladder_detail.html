@@ -2,7 +2,6 @@
 {% load staticfiles %}
 
 {% block body_block %}
-
 <h1>{{ object.name }}</h1>
 {% if object.description %}
 <p>{{ object.description }}</p>
@@ -11,7 +10,11 @@
 <p>Location: {{ object.location }}</p>
 {% endif %}
 <p>Players: {{ ranking_list|length }}</p>
+<hr>
+<p><a href="{% url 'report-games' object.id %}">Report a game</a></p>
 
+
+<p><a href="{% url 'ladder-games' object.id %}">All games from this ladder</a></p>
 <hr>
 <h2>Current rankings</h2>
 {% for ranking in ranking_list %}
@@ -27,13 +30,7 @@
 {% endfor %}
 
 <hr>
-<h2>Recent games</h2>
-{% for game in recent_games %}
-    <li>{{ game.white.user.username }} vs {{ game.black.user.username }}: {{ game.get_result_display}}</li>
-{% endfor %}
 
-<p><a href="{% url 'ladder-games' object.id %}">All games from this ladder</a></p>
-<hr>
 
 <p><a href="{% url 'ladder-list' %}">Ladder and tournament list</a></p>
 <p>Page refreshed at {{ timestamp }}</p>  

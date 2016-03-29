@@ -18,6 +18,34 @@
     <li> <a href="{% url 'ladder-detail' row.0.id %}">{{ row.0.name }}</a> ({{ row.2 }})  #{{ row.1 }}</li>
 {% endfor %}
 
+<h2>Activity</h2>
+
+{% if awaiting %}
+<h3>Games awaiting your confirmation</h3>
+{% for game in awaiting %}
+<li><a href="{% url 'game-detail' game.id %}">{{ game }}</a></li>
+{% endfor %}
+{% endif %}
+
+{% if reported %}
+<h3>Games awaiting opponent confirmation</h3>
+{% for game in reported %}
+<li><a href="{% url 'game-detail' game.id %}">{{ game }}</a></li>
+{% endfor %}
+{% endif %}
+
+{% if disputed %}
+<h3>Games in disputed state</h3>
+{% for game in disputed %}
+<li><a href="{% url 'game-detail' game.id %}">{{ game }}</a></li>
+{% endfor %}
+{% endif %}
+
+
+
+
+
+
 {% elif request.user.is_authenticated and request.user.player.membership == 0 %}
 <hr>
 <p>(An administrator must confirm your membership status before you can see player details.)</p>

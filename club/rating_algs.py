@@ -28,9 +28,9 @@ def fide(white, black, result, ladder, provisional_k=32, standard_k=24,
              114, 122, 130, 138, 146, 154, 163, 171, 180, 189, 198, 207,
              216, 226, 236, 246, 257, 268, 279, 291, 303, 316, 329, 345,
              358, 375, 392, 412, 433, 457, 485, 518, 560, 620, 736, 10000]
-    d = [(0, 3)]
+    d = [(0, 4)]
     for i in range(1, len(pre_d)):
-        d.append((pre_d[i-1], pre_d[i] - 1))
+        d.append((pre_d[i-1], pre_d[i]))
 
     p = [Decimal('0.%d' % i) for i in range(50, 100)]
     p.append(Decimal('1.0'))
@@ -51,10 +51,11 @@ def fide(white, black, result, ladder, provisional_k=32, standard_k=24,
         w_score = b_score = Decimal('0.5')
 
     pd_value = None
-    for pair in pd:
-        if pair[0] <= diff <= pair[1]:
+    for pair in pd.keys():
+        if pair[0] <= diff < pair[1]:
             pd_value = pd[pair]
-
+            break
+    
     if white >= black:
         w_expected_score = pd_value
         b_expected_score = 1 - pd_value
