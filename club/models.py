@@ -92,7 +92,8 @@ class Game(models.Model):
                                                       (0, 'withdrawn'),
                                                       (1, 'white affirms'),
                                                       (2, 'black affirms'),
-                                                      (3, 'confirmed')))
+                                                      (3, 'confirmed'),
+                                                      (4, 'processed')))
 
     def __unicode__(self):
         return '%s (%r) - %s (%r): %s' % (
@@ -124,6 +125,7 @@ class Ranking(models.Model):
     ladder = models.ForeignKey(Ladder)
     rank = models.IntegerField(null=True, blank=True)
     initial_rating = models.IntegerField(default=1200)
+    initial_rank = models.IntegerField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     
     @property
@@ -266,7 +268,7 @@ def add_player(sender, instance, created, **kwargs):
 # Hook ratings from players at the time the game record is created
 @receiver(post_save, sender=Game)
 def set_rankings(sender, instance, created, **kwargs):
-    if created:
+    if instance.status == 3:
         white = instance.white
         black = instance.black
         ladder = instance.ladder
@@ -276,7 +278,7 @@ def set_rankings(sender, instance, created, **kwargs):
         # compute new ratings
         instance.white_rating = white.rating(ladder)
         instance.black_rating = black.rating(ladder)
-        instance.save()
+        # instance.save()
         set_ratings(instance)
 
         # compute new ranks  
@@ -301,6 +303,8 @@ def set_rankings(sender, instance, created, **kwargs):
         else:
             raise Exception('What game result code is this? %d'
                             % instance.result)
+        instance.status = 4
+        instance.save()
 
 
 # People join ladders at the bottom
@@ -312,4 +316,5 @@ def set_rank(sender, instance, created, **kwargs):
         if max_rank is None:
             max_rank = 0
         instance.rank = max_rank + 1
+        instance.initial_rank = max_rank + 1
         instance.save()

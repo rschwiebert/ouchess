@@ -45,6 +45,10 @@ new PgnViewer(
 );  
 </script>
 This board is brought to you by <a href="http://chesstempo.com">ChessTempo</a>.<br>
+
+
+{% endif %}
+
 {% if object.white.user == request.user and object.status == 2 %}
 <hr>
 Do you agree with this reported result?<br>
@@ -59,8 +63,6 @@ Do you agree with this reported result?<br>
     {{ form.as_ul }}
     <input type="submit" value="Submit response" />
 </form>
-{% endif %}
-
 {% endif %}
 
 {% if user_can_edit_pgn and object.pgn %}

@@ -109,7 +109,7 @@ class LadderGameListView(ListView):
     def get_queryset(self):
         queryset = super(LadderGameListView, self).get_queryset()
         ladder_id = self.kwargs['pk']
-        return queryset.filter(ladder=ladder_id, status=3)
+        return queryset.filter(ladder=ladder_id, status=4)
 
     def get_context_data(self, **kwargs):
         context = super(LadderGameListView, self).get_context_data(**kwargs)
