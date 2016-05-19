@@ -1,16 +1,21 @@
 {% extends "club/base.html" %}
 {% load staticfiles %}
 
+{% block title %}Home{% endblock %}
+
 {% block body_block %}
 
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+	<div class="container">
+	    <h1 align='center'>Welcome to the Ohio University Chess Club's Chess Ladder Site!</h1>
+	    <p align='center'>Check your rankings, upload/replay/analyze your games</p>
+	    <p align='center'><a class="btn btn-primary btn-lg"
+		                 href="about#mission" role="button">
+		Learn about the club &raquo;</a></p>
+	</div>
+</div>
 
-  <div class="container">
-    <h1 align="center">Ohio University Chess Ladder Site</h1>
-    <hr>
-    <p><a href="{% url 'faq' %}">Club info</a></p>
-    <p><a href="{% url 'ladder-list' %}">Ladders and tourneys</a></p>
-    <p><a href="{% url 'player-list' %}">Players</a></p>
-    <!--<p><a href="{% url 'game-list' %}">Games</a></p> -->
-  </div>
+
 
 {% endblock %}
