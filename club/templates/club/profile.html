@@ -1,0 +1,44 @@
+{% extends 'club/base.html' %}
+
+{% block title %}Your profile page{% endblock %}
+
+{% block body_block %}
+
+<div class="container">
+    <h1>{{ request.user.username }}'s user profile</h1>
+    <div class="md-col-4 content">
+	<h2>Rankings and Ratings:</h2>
+	{% for row in ratings_rankings_list %}
+	    <li> <a href="{% url 'ladder-detail' row.0.id %}">{{ row.0.name }}</a> ({{ row.2 }})  #{{ row.1 }}</li>
+	{% endfor %}
+    </div>
+    <div class="row">
+      <div class="col-md-4 content">
+	<h2>Activity</h2>
+
+	{% if awaiting %}
+	<h3>Games awaiting your confirmation</h3>
+	{% for game in awaiting %}
+	<li><a href="{% url 'game-detail' game.id %}">{{ game }}</a></li>
+	{% endfor %}
+	{% endif %}
+      </div>
+      <div class="col-md-4 content">
+	{% if reported %}
+	<h3>Games awaiting opponent confirmation</h3>
+	{% for game in reported %}
+	<li><a href="{% url 'game-detail' game.id %}">{{ game }}</a></li>
+	{% endfor %}
+	{% endif %}
+      </div>
+      <div class="col-md-4 content">
+	{% if disputed %}
+	<h3>Games in disputed state</h3>
+	{% for game in disputed %}
+	<li><a href="{% url 'game-detail' game.id %}">{{ game }}</a></li>
+	{% endfor %}
+	{% endif %}
+      </div>
+    </div>
+</div>
+{% endblock %}

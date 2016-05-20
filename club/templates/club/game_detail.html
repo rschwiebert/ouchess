@@ -1,81 +1,87 @@
 {% extends "club/base.html" %}
 {% load staticfiles %}
 
+{% block title %}Game detail{% endblock %}
+
 {% block body_block %}
+<div class="container">
+	<h1><a href="{% url 'player-detail' object.white.id %}">{{ object.white }}</a> vs. <a href="{% url 'player-detail' object.black.id %}">{{ object.black }}</a>: {{ object.get_result_display }}</h1>
+	<div class="col-md-12 content">
+	{% if object.time_control %}
+	<p>Time control: {{ object.time_control }}</p>
+	{% endif %}
+	{% if game.ladder.ladder_type == 0 %}
+	<p>Ladder: {{ game.ladder.name }}</p>
+	{% elif game.ladder.ladder_type == 1 %}
+	<p>Tournament: {{ game.ladder.name }}</p>
+	{% endif %} 
+        </div>
+	{% if object.pgn %}
+	<div class="container">
+	    <div class="row">
+		<div id="demo-container" class="col-md-4 content"></div>  
+		<div id="demo-moves" class="col-md-4 content"></div>  
+	    </div>
+	</div>
 
-<h1><a href="{% url 'player-detail' object.white.id %}">{{ object.white }}</a> vs. <a href="{% url 'player-detail' object.black.id %}">{{ object.black }}</a>: {{ object.get_result_display }}</h1>
-<br>
-{% if object.time_control %}
-Time control: {{ object.time_control }}
-{% endif %}
-{% if game.ladder.ladder_type == 0 %}
-Ladder: {{ game.ladder.name }}
-{% elif game.ladder.ladder_type == 1 %}
-Tournament: 
-{% endif %} {{ game.ladder.name }}
+	<p></p>
 
-{% if object.pgn %}
-<div id="demo-container"></div>  
-<div id="demo-moves"></div>  
-
-<p></p>
-
-<!-- Support libraries from Yahoo YUI project -->  
-<script type="text/javascript"  
-    src="http://chesstempo.com/js/pgnyui.js">  
-</script>   
-<script type="text/javascript"  
-    src="http://chesstempo.com/js/pgnviewer.js">  
-</script>  
-<link  
- type="text/css"   
- rel="stylesheet"   
- href="http://chesstempo.com/css/board-min.css">  
-</link>  
-
-
-
-<script>     
-new PgnViewer(  
-  { boardName: "demo",  
-    pgnString: "{{ object.pgn|escapejs }}",  
-    pieceSet: 'leipzig',   
-    pieceSize: 46  
-  }  
-);  
-</script>
-This board is brought to you by <a href="http://chesstempo.com">ChessTempo</a>.<br>
+	<!-- Support libraries from Yahoo YUI project -->  
+	<script type="text/javascript"  
+	    src="http://chesstempo.com/js/pgnyui.js">  
+	</script>   
+	<script type="text/javascript"  
+	    src="http://chesstempo.com/js/pgnviewer.js">  
+	</script>  
+	<link  
+	 type="text/css"   
+	 rel="stylesheet"   
+	 href="http://chesstempo.com/css/board-min.css">  
+	</link>  
 
 
-{% endif %}
 
-{% if object.white.user == request.user and object.status == 2 %}
-<hr>
-Do you agree with this reported result?<br>
-<form action="" method="post">{% csrf_token %}
-    {{ form.as_ul }}
-    <input type="submit" value="Submit response" />
-</form>
-{% elif object.black.user == request.user and object.status == 1 %}
-<hr>
-Do you agree with this reported result?<br>
-<form action="" method="post">{% csrf_token %}
-    {{ form.as_ul }}
-    <input type="submit" value="Submit response" />
-</form>
-{% endif %}
+	<script>     
+	new PgnViewer(  
+	  { boardName: "demo",  
+	    pgnString: "{{ object.pgn|escapejs }}",  
+	    pieceSet: 'leipzig',   
+	    pieceSize: 46  
+	  }  
+	);  
+	</script>
+	This board is brought to you by <a href="http://chesstempo.com">ChessTempo</a>.<br>
 
-{% if user_can_edit_pgn and object.pgn %}
-<a href="{% url 'pgn-edit-game' object.id %}">Edit this game</a>
 
-{% elif user_can_edit_pgn %}
-<hr>
-<p>(Moves not available. If you are an admin or a player in this game, use the <a href="{% url 'pgn-edit-game' object.id %}">pgn submission form</a> to record your game!)</p>
-{% else %}
-<p>(Moves not available for this game.)</p>
+	{% endif %}
 
-{% endif %}
+	{% if object.white.user == request.user and object.status == 2 %}
+	<hr>
+	Do you agree with this reported result?<br>
+	<form action="" method="post">{% csrf_token %}
+	    {{ form.as_ul }}
+	    <input type="submit" value="Submit response" />
+	</form>
+	{% elif object.black.user == request.user and object.status == 1 %}
+	<hr>
+	<p>Do you agree with this reported result?</p>
+	<form action="" method="post">{% csrf_token %}
+	    {{ form.as_ul }}
+	    <input type="submit" value="Submit response" />
+	</form>
+	{% endif %}
 
+	{% if user_can_edit_pgn and object.pgn %}
+	<a href="{% url 'pgn-edit-game' object.id %}">Edit this game</a>
+
+	{% elif user_can_edit_pgn %}
+	<hr>
+	<p>(Moves not available. If you are an admin or a player in this game, use the <a href="{% url 'pgn-edit-game' object.id %}">pgn submission form</a> to record your game!)</p>
+	{% else %}
+	<p>(Moves not available for this game.)</p>
+
+	{% endif %}
+</div>
 {% endblock %}
 
 

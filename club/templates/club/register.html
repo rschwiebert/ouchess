@@ -1,12 +1,15 @@
 {% extends "club/base.html" %}
 {% load staticfiles %}
 
+{% block title %}Sign up{% endblock %}
+
 {% block body_block %}
-<h1>Register</h1>
+<div class="container">
+	<h1>Register</h1>
 
-<form method="post" action="">
-{% csrf_token %}
-{{ form.as_p }}
-<input type="submit" value="Register" />
-
+	<form method="post" action="">
+	{% csrf_token %}
+	{{ form.as_p }}
+	<input type="submit" value="Register" />
+</div>
 {% endblock %}

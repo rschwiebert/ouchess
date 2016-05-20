@@ -1,37 +1,47 @@
 {% extends "club/base.html" %}
 {% load staticfiles %}
 
+{% block title %}Ladder info{% endblock %}
+
 {% block body_block %}
-<h1>{{ object.name }}</h1>
-{% if object.description %}
-<p>{{ object.description }}</p>
-{% endif %}
-{% if object.location %}
-<p>Location: {{ object.location }}</p>
-{% endif %}
-<p>Players: {{ ranking_list|length }}</p>
-<hr>
-<p><a href="{% url 'report-games' object.id %}">Report a game</a></p>
+<div class="container">
+	<div class="col-md-12 content">
+		<h1>{{ object.name }}</h1>
+		{% if object.description %}
+		<p>{{ object.description }}</p>
+		{% endif %}
+		{% if object.location %}
+		<p>Location: {{ object.location }}</p>
+		{% endif %}
+		<p>Current number of players: {{ ranking_list|length }}</p>
 
+                <a class="btn btn-primary" href="{% url 'report-games' object.id %}"
+                   role="button">Report a game &raquo;</a>
+                <a class="btn btn-primary" href="{% url 'ladder-games' object.id %}"
+                   role="button">All games from this ladder &raquo;</a>
 
-<p><a href="{% url 'ladder-games' object.id %}">All games from this ladder</a></p>
-<hr>
-<h2>Current rankings</h2>
-{% for ranking in ranking_list %}
-    <li>{% if ranking.is_active %}#{{ ranking.rank }}{% else %} ---- {% endif %} {{ ranking.player }} ({{ ranking.int_rating }})</li>
-{% endfor %}
+		</div>
+	<hr/ >
+	<div class="container">
+		<div class="col-md-4 content">
+			<h2>Current rankings</h2>
+                        <ul>
+			    {% for ranking in ranking_list %}
+			    <li>{% if ranking.is_active %}#{{ ranking.rank }}{% else %} ---- {% endif %} {{ ranking.player }} ({{ ranking.int_rating }})</li>
+			    {% endfor %}
+                        </ul>
+		</div>
+		<div class="col-md-4 content">
+			<h2>Current ratings</h2>
+                        <ul>
+			    {% for rating in rating_list %}
+			    <li>{{ rating.0 }} ({{ rating.1 }})</li>
+			    {% endfor %}
+                        </ul>
+		</div>
+	</div>
+	<hr/ >
 
-<hr>
-
-<h2>Current ratings</h2>
-
-{% for rating in rating_list %}
-    <li>{{ rating.0 }} ({{ rating.1 }})</li>
-{% endfor %}
-
-<hr>
-
-
-<p><a href="{% url 'ladder-list' %}">Ladder and tournament list</a></p>
-<p>Page refreshed at {{ timestamp }}</p>  
+	    <p>Page refreshed at {{ timestamp }}</p>  
+</div>
 {% endblock %}

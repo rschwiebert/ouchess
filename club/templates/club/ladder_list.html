@@ -1,30 +1,29 @@
 {% extends "club/base.html" %}
 {% load staticfiles %}
 
+{% block title %}Ladder index{% endblock %}
+
 {% block body_block %}
 
-<h1>Ongoing ladders</h1>
+<div class="container">
+    <div class="col-md-4 content">
+        <h2>Ongoing ladders</h2>
+        <ul>
+	    {% for object in current_ladder_list %}
+	    <li><a href="{% url 'ladder-detail' object.id %}">{{ object.name }}</a></li>
+	    {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-4 content">
+	{% if closed_ladder_list %}
+	<h2>Closed ladders</h2>
+        <ul>
+	    {% for object in closed_ladder_list %}
+	    <li><a href="{% url 'ladder-detail' object.id %}">{{ object.name }}</a></li>
+	    {% endfor %}
+        </ul>
+	{% endif %}
+    </div>
+</div>
 
-{% for object in current_ladder_list %}
-    <li><a href="{% url 'ladder-detail' object.id %}">{{ object.name }}</a></li>
-{% endfor %}
-
-{% if closed_ladder_list %}
-<hr>
-<h1>Closed ladders</h1>
-
-{% for object in closed_ladder_list %}
-    <li><a href="{% url 'ladder-detail' object.id %}">{{ object.name }}</a></li>
-{% endfor %}
-{% endif %}
-
-
-{% if tourney_list %}
-<hr>
-<h1>Tournaments</h1>
-
-{% for object in tourney_list %}
-    <li><a href="{% url 'tourney-detail' object.id %}">{{ object.name }}</a></li>
-{% endfor %}
-{% endif %}
 {% endblock %}

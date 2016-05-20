@@ -1,10 +1,13 @@
 {% extends "club/base.html" %}
 {% load staticfiles %}
 
-{% block body_block %}
-<h1>Club info</h1>
+{% block title %}FAQ{% endblock %}
 
-<h1>FAQs</h1>
-<p><b>When does the club meet?</b> (Time/location to be filled in.) For updates about events, check out the <a href="http://ouchess.blogspot.com">Ohio University Chess Club blog</a></p>
-<p><b>What does membership involve?</b>  The conditions will be determined by the club participants. On the website, confirmed memebers are able to see playernames, games, ratings and rankings. Inquire about a website administrator at the club meeting about getting confirmed as a member on the site.</p>
+{% block body_block %}
+<div class="container">
+	<h1>FAQs</h1>
+	<b>When does the club meet?</b> <p>(Time/location to be filled in.) For updates about events, check out the <a href="http://ouchess.blogspot.com">Ohio University Chess Club blog</a></p>
+	<b>What does membership involve?</b>  <p>The conditions will be determined by the club participants. On the website, confirmed members are able to see playernames, games, ratings and rankings. Inquire about a website administrator at the club meeting about getting confirmed as a member on the site.</p>
+</div>
+
 {% endblock %}

@@ -29,7 +29,7 @@ DEBUG = False
 
 
 LOGIN_URL = '/login'
-LOGIN_REDIRECT_URL = '/games/'
+LOGIN_REDIRECT_URL = '/profile/'
 
 # Application definition
 

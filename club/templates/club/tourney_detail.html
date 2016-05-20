@@ -1,31 +1,36 @@
 {% extends "club/base.html" %}
 {% load staticfiles %}
 
+{% block title %}Tourney info{% endblock %}
+
 {% block body_block %}
-
-<h1>{{ object.name }}</h1>
-Location: {{ object.location }}
-
-<hr>
-<h2>Current rankings</h2>
-{% for ranking in ranking_list %}
-    <li>{% if ranking.is_active %}#{{ ranking.rank }}{% else %} ---- {% endif %} {{ ranking.player }} ({{ ranking.int_rating }})</li>
-{% endfor %}
-
-<hr>
-
-<h2>Player rating performance</h2>
-
-{% for rating in rating_list %}
-    <li>{{ rating.0 }} ({{ rating.1 }})</li>
-{% endfor %}
-
-<hr>
-
-
-<p><a href="{% url 'tourney-games' object.id %}">All games from this tournament</a></p>
-<hr>
-
-<p><a href="{% url 'ladder-list' %}">Ladder and tournament list</a></p>
-<p>Page refreshed at {{ timestamp }}</p>  
+<div class="container">
+    <div class="col-md-12 content">
+	<h1>{{ object.name }}</h1>
+	<p>Location: {{ object.location }}</p>
+        <p><a href="{% url 'tourney-games' object.id %}">All games from this tournament</a></p>
+	
+    </div>
+    <div class="container">
+	    <div class="col-md-4 content">
+		<h2>Current rankings</h2>
+		<ul>
+	 	    {% for ranking in ranking_list %}
+		    <li>{% if ranking.is_active %}#{{ ranking.rank }}{% else %} ---- {% endif %} {{ ranking.player }} ({{ ranking.int_rating }})</li>
+		    {% endfor %}
+		</ul>
+	    </div>
+	    <div class="col-md-4 content">
+		<h2>Player rating performance</h2>
+		<ul>
+		    {% for rating in rating_list %}
+		    <li>{{ rating.0 }} ({{ rating.1 }})</li>
+		    {% endfor %}
+		</ul>
+	    </div>
+     </div>
+	
+        <hr />
+	<p>Page refreshed at {{ timestamp }}</p>  
+</div>
 {% endblock %}

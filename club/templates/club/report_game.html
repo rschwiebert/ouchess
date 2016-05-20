@@ -1,10 +1,17 @@
 {% extends "club/base.html" %}
 {% load staticfiles %}
 
-{% block body_block %}
-<form action="" method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit game" />
-</form>
+{% block title %}Game reports{% endblock %}
 
+{% block body_block %}
+<div class="container">
+	<h1>Game report form</h1>
+	<p>After submitting this information, your opponent or an administrator will need to confirm it.</p>
+        <p>You can find pending game statuses and confirm pending games on your 
+           <a href="{% url 'profile' %}">profile page</a>.</p>
+	<form action="" method="post">{% csrf_token %}
+	    {{ form.as_p }}
+	    <input type="submit" value="Submit game" />
+	</form>
+</div>
 {% endblock %}

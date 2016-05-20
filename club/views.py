@@ -15,24 +15,6 @@ class PlayerDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(PlayerDetailView, self).get_context_data(**kwargs)
-        rankings = Ranking.objects.filter(player=self.object)
-        ratings_rankings_list = []
-        for ranking in rankings:
-            ratings_rankings_list.append(
-                (ranking.ladder, ranking.rank,
-                 ranking.player.int_rating(ranking.ladder)))
-
-        context['ratings_rankings_list'] = ratings_rankings_list
-
-        ladder_games = Game.objects.filter(Q(white=self.object) | Q(black=self.object))
-        reported = ladder_games.filter(
-            Q(white=self.request.user.player, status=1)|Q(black=self.request.user.player, status=2))
-        awaiting = ladder_games.filter(
-            Q(white=self.request.user.player, status=2)|Q(black=self.request.user.player, status=1))
-        disputed = ladder_games.filter(status__in=[-1, -2])
-        context['awaiting'] = awaiting
-        context['reported'] = reported
-        context['disputed'] = disputed
 
         return context
 
@@ -254,4 +236,30 @@ class PGNView(LoginRequiredMixin, FormView):
         return super(PGNView, self).form_valid(form)
 
 
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'club/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        player = self.request.user.player
+        rankings = Ranking.objects.filter(player=player)
+        ratings_rankings_list = []
+        for ranking in rankings:
+            ratings_rankings_list.append(
+                (ranking.ladder, ranking.rank,
+                 ranking.player.int_rating(ranking.ladder)))
+
+        context['ratings_rankings_list'] = ratings_rankings_list
+
+        ladder_games = Game.objects.filter(Q(white=player) | Q(black=player))
+        reported = ladder_games.filter(
+            Q(white=player, status=1)|Q(black=player, status=2))
+        awaiting = ladder_games.filter(
+            Q(white=player, status=2)|Q(black=player, status=1))
+        disputed = ladder_games.filter(status__in=[-1, -2])
+        context['awaiting'] = awaiting
+        context['reported'] = reported
+        context['disputed'] = disputed
+
+        return context
 

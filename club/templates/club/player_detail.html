@@ -1,62 +1,29 @@
 {% extends "club/base.html" %}
 {% load staticfiles %}
 
+{% block title %}Player detail{% endblock %}
+
 {% block body_block %}
-<h1>{{ object.user.username }}</h1>
-{% if request.user.is_authenticated and request.user.player.membership > 0 %}
-<h2>Profile:</h2>
-{% if object.bio %}
-<p>{{ object.bio }}</p>
-{% else %}
-<p><i>(No information.)</i></p>
-{% endif %}
+<div class="container">
+	<h1>{{ object.user.username }}</h1>
+	{% if request.user.is_authenticated and request.user.player.membership > 0 %}
+	<h2>Profile:</h2>
+	{% if object.bio %}
+	<p>{{ object.bio }}</p>
+	{% else %}
+	<p><i>(No information.)</i></p>
+	{% endif %}
 
-<hr>
-<h2>Rankings and Ratings:</h2>
+	{% elif request.user.is_authenticated and request.user.player.membership == 0 %}
+	<hr>
+	<p>(An administrator must confirm your membership status before you can see player details.)</p>
 
-{% for row in ratings_rankings_list %}
-    <li> <a href="{% url 'ladder-detail' row.0.id %}">{{ row.0.name }}</a> ({{ row.2 }})  #{{ row.1 }}</li>
-{% endfor %}
+	{% else %}
+	<hr>
+	<p><i>(You must be <a href="{% url 'login' %}">logged in</a> to see more details about this player like current ladder rankings.)</i></p>
+	{% endif %}
 
-<h2>Activity</h2>
+	<hr>
 
-{% if awaiting %}
-<h3>Games awaiting your confirmation</h3>
-{% for game in awaiting %}
-<li><a href="{% url 'game-detail' game.id %}">{{ game }}</a></li>
-{% endfor %}
-{% endif %}
-
-{% if reported %}
-<h3>Games awaiting opponent confirmation</h3>
-{% for game in reported %}
-<li><a href="{% url 'game-detail' game.id %}">{{ game }}</a></li>
-{% endfor %}
-{% endif %}
-
-{% if disputed %}
-<h3>Games in disputed state</h3>
-{% for game in disputed %}
-<li><a href="{% url 'game-detail' game.id %}">{{ game }}</a></li>
-{% endfor %}
-{% endif %}
-
-
-
-
-
-
-{% elif request.user.is_authenticated and request.user.player.membership == 0 %}
-<hr>
-<p>(An administrator must confirm your membership status before you can see player details.)</p>
-
-{% else %}
-<hr>
-<p><i>(You must be <a href="{% url 'login' %}">logged in</a> to see more details about this player like current ladder rankings.)</i></p>
-{% endif %}
-
-<hr>
-
-<p><a href="{% url 'player-list' %}">Player list</a></p>
-
+</div>
 {% endblock %}
